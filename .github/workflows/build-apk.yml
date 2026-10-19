@@ -1,1 +1,16 @@
 
+name: Build AI Video Creator APK
+
+on:
+  workflow_dispatch:
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: List project files
+        run: ls -la
+
