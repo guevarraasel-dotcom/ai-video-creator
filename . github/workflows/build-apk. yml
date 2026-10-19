@@ -1,12 +1,11 @@
-
 name: Build AI Video Creator APK
 
 on:
   workflow_dispatch:
   push:
     paths:
-      - 'AI_Video_Creator_Phone_Build_Pack.zip'
-      - '.github/workflows/build-apk.yml'
+      - 'ai_video_creator_phone_build_pack.zip'
+      - '.github/workflows/build apk.yml'
 
 permissions:
   contents: read
