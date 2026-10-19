@@ -1,16 +1,52 @@
-
 name: Build AI Video Creator APK
 
 on:
   workflow_dispatch:
 
 jobs:
-  check:
+  build:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: List project files
-        run: ls -la
+      - name: Check ZIP file
+        run: |
+          ls -la
+          test -f ai_video_creator_phone_build_pack.zip
 
+      - name: Set up Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Extract project
+        run: |
+          unzip -o ai_video_creator_phone_build_pack.zip -d project
+
+      - name: Find Gradle project
+        run: |
+          find project -type f \( -name settings.gradle -o -name settings.gradle.kts \)
+
+      - name: Set up Gradle
+        uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '8.7'
+
+      - name: Build APK
+        run: |
+          SETTINGS=$(find project -type f \( -name settings.gradle -o -name settings.gradle.kts \) | head -n 1)
+          if [ -z "$SETTINGS" ]; then
+            echo "Hindi nakita ang settings.gradle."
+            exit 1
+          fi
+          cd "$(dirname "$SETTINGS")"
+          gradle assembleDebug
+
+      - name: Upload APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: AI-Video-Creator-debug-APK
+          path: project/**/build/outputs/apk/debug/*.apk
+          if-no-files-found: error
