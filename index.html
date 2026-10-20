@@ -1,131 +1,24 @@
 
 <!DOCTYPE html>
-<html lang="fil">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>My AI Video Creator</title>
+<html lang="fil"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>My AI Video Creator</title>
 <style>
-*{box-sizing:border-box}
-body{margin:0;background:#10111c;color:#fff;font-family:Arial,sans-serif;padding:20px}
-header{text-align:center;padding:20px 0}
-h1{color:#9c8cff;font-size:28px}
-p{color:#c6c6d8;line-height:1.5}
-main{max-width:600px;margin:auto}
-.card{background:#1d1e2d;padding:20px;border-radius:18px;margin-bottom:18px}
-label{display:block;margin:16px 0 8px;font-weight:bold}
-textarea,select,input{width:100%;padding:13px;border-radius:10px;border:1px solid #414258;background:#11121d;color:white;font-size:16px}
-textarea{min-height:120px;resize:vertical}
-button{width:100%;padding:15px;border:0;border-radius:12px;background:#8170ff;color:white;font-size:16px;font-weight:bold;margin-top:14px}
-.secondary{background:#303146}
-#result{white-space:pre-wrap;overflow-wrap:anywhere;line-height:1.6}
-.small{font-size:13px;color:#aaa}
-</style>
-</head>
-<body>
-<main>
-<header>
-<div style="font-size:42px">🎬</div>
-<h1>My AI Video Creator</h1>
-<p>Gumawa ng mga ideya at prompt para sa AI videos mo.</p>
-</header>
-
-<section class="card">
-<h2>✨ Gumawa ng Video Prompt</h2>
-
-<label for="idea">Ano ang gusto mong video?</label>
-<textarea id="idea" placeholder="Halimbawa: Isang lalaking Pilipino na naglalakad sa kagubatan..."></textarea>
-
-<label for="style">Estilo ng video</label>
-<select id="style">
-<option>Cinematic realistic</option>
-<option>Romantic movie</option>
-<option>Action movie</option>
-<option>Sad emotional</option>
-<option>Fantasy transformation</option>
-<option>Anime</option>
-<option>TikTok product advertisement</option>
-</select>
-
-<label for="ratio">Video format</label>
-<select id="ratio">
-<option value="9:16">9:16 — TikTok / Reels</option>
-<option value="16:9">16:9 — YouTube</option>
-<option value="1:1">1:1 — Square video</option>
-</select>
-
-<label for="duration">Haba ng video</label>
-<select id="duration">
-<option>5 seconds</option>
-<option selected>10 seconds</option>
-<option>15 seconds</option>
-<option>30 seconds</option>
-<option>60 seconds</option>
-</select>
-
-<button onclick="makePrompt()">✨ Gumawa ng Prompt</button>
-</section>
-
-<section class="card">
-<h2>📝 Iyong Video Prompt</h2>
-<p id="result">Lalabas dito ang iyong prompt pagkatapos pindutin ang Gumawa ng Prompt.</p>
-<button onclick="copyPrompt()">📋 Kopyahin ang Prompt</button>
-<button class="secondary" onclick="resetForm()">I-reset</button>
-<p class="small">Ang prompt na ito ay maaari mong gamitin sa isang AI video generator.</p>
-</section>
-
-<section class="card">
-<h3>🎥 Paano gumawa ng aktuwal na video?</h3>
-<p>Gumawa muna ng prompt, kopyahin ito, at gamitin sa isang compatible na AI video generation service. Hindi pa nakakagawa o nakakapag-download ng aktuwal na AI video ang website na ito nang walang koneksiyon sa video-generation service.</p>
-</section>
-
-<footer style="text-align:center;padding:15px;color:#aaa">
-My AI Video Creator © 2026
-</footer>
-</main>
-
+*{box-sizing:border-box}body{margin:0;padding:16px;background:#10111c;color:#fff;font-family:Arial,sans-serif}main{max-width:640px;margin:auto}header{text-align:center;padding:18px 0}h1{color:#a99cff}p{color:#d0cede;line-height:1.5}.card{background:#1d1e2d;padding:18px;border-radius:16px;margin:14px 0}label{display:block;font-weight:bold;margin:15px 0 8px}textarea,select,input[type=file]{width:100%;padding:13px;border-radius:10px;border:1px solid #414258;background:#11121d;color:white;font-size:16px}textarea{min-height:105px}button{width:100%;padding:14px;margin-top:12px;border:0;border-radius:10px;background:#8170ff;color:white;font-size:16px;font-weight:bold}button:disabled{opacity:.55}#preview,#video{display:none;width:100%;margin-top:12px;border-radius:10px}#status{white-space:pre-wrap;overflow-wrap:anywhere;background:#11121d;padding:12px;border-radius:10px;margin-top:12px;color:#d7d2ff}small{color:#aaa}a{color:#c5bdff}
+</style></head><body><main>
+<header><div style="font-size:42px">🎬</div><h1>My AI Video Creator</h1><p>Gumawa ng video mula sa larawan gamit ang Wan 2.2.</p></header>
+<section class="card"><h2>1. Pumili ng larawan</h2><input id="image" type="file" accept="image/*"><img id="preview" alt="Preview ng larawan">
+<label for="idea">2. Ilarawan ang video</label><textarea id="idea" placeholder="Halimbawa: Isang lalaking Pilipino na dahan-dahang naglalakad sa kagubatan, cinematic lighting..."></textarea>
+<label for="style">Estilo</label><select id="style"><option>Cinematic realistic</option><option>Romantic movie</option><option>Action movie</option><option>Sad emotional</option><option>Fantasy transformation</option><option>Anime</option><option>TikTok product advertisement</option></select>
+<label for="duration">Haba ng video</label><select id="duration"><option value="2">2 segundo</option><option value="3.5" selected>3.5 segundo</option><option value="5">5 segundo</option></select>
+<label for="steps">Bilis / kalidad</label><select id="steps"><option value="4">4 steps — mas mabilis</option><option value="6" selected>6 steps</option><option value="8">8 steps</option></select>
+<button id="go" onclick="generate()">🎥 Gumawa ng AI Video</button><div id="status">Pumili ng larawan at ilagay ang prompt para magsimula.</div></section>
+<section class="card"><h2>3. Video mo</h2><video id="video" controls playsinline></video><a id="download" style="display:none" download="my-ai-video.mp4">I-download ang video</a></section>
+<section class="card"><h3>Paalala</h3><small>Gumagamit ito ng pampublikong Wan 2.2 demo. Maaaring may pila, quota, o pansamantalang outage. Kung harangin ng browser ang API request (CORS), kailangan ng backend/proxy. Huwag ilagay ang password o secret key sa website.</small></section>
+<footer style="text-align:center;color:#aaa;padding:15px">My AI Video Creator © 2026</footer></main>
 <script>
-function makePrompt(){
-const idea=document.getElementById('idea').value.trim();
-if(!idea){
-alert('Ilagay muna ang ideya ng video.');
-document.getElementById('idea').focus();
-return;
-}
-const style=document.getElementById('style').value;
-const ratio=document.getElementById('ratio').value;
-const duration=document.getElementById('duration').value;
-document.getElementById('result').textContent=
-'Create a '+duration+' '+style+' video. '+
-'Scene: '+idea+'. '+
-'Format: vertical or horizontal aspect ratio '+ratio+
-'. High-quality visuals, smooth camera movement, realistic lighting, detailed environment, natural motion, consistent characters, professional composition. '+
-'Duration: '+duration+'.';
-}
-async function copyPrompt(){
-const text=document.getElementById('result').textContent;
-if(text.startsWith('Lalabas dito')){
-alert('Gumawa muna ng prompt.');
-return;
-}
-try{
-await navigator.clipboard.writeText(text);
-alert('Nakopya ang prompt!');
-}catch(e){
-const area=document.createElement('textarea');
-area.value=text;
-document.body.appendChild(area);
-area.select();
-document.execCommand('copy');
-area.remove();
-alert('Nakopya ang prompt!');
-}
-}
-function resetForm(){
-document.getElementById('idea').value='';
-document.getElementById('result').textContent=
-'Lalabas dito ang iyong prompt pagkatapos pindutin ang Gumawa ng Prompt.';
-}
-</script>
-</body>
-</html>
+const BASE='https://zerogpu-aoti-wan2-2-fp8da-aoti-faster.hf.space';
+const NEG='色调艳丽, 过曝, 静态, 细节模糊不清, 字幕, 风格, 作品, 画作, 画面, 静止, 整体发灰, 最差质量, 低质量, JPEG压缩残留, 丑陋的, 残缺的, 多余的手指, 画得不好的手部, 画得不好的脸部, 畸形的, 毁容的, 形态畸形的肢体, 手指融合, 静止不动的画面, 杂乱的背景, 三条腿, 背景人很多, 倒着走';
+const $=id=>document.getElementById(id);function say(s){$('status').textContent=s}
+$('image').addEventListener('change',()=>{const f=$('image').files[0];if(!f){$('preview').style.display='none';return}if(!f.type.startsWith('image/')){alert('Pumili ng larawan na JPG o PNG.');$('image').value='';return}$('preview').src=URL.createObjectURL(f);$('preview').style.display='block'});
+function dataUrl(file){return new Promise((ok,no)=>{const r=new FileReader();r.onload=()=>ok(r.result);r.onerror=()=>no(Error('Hindi mabasa ang larawan.'));r.readAsDataURL(file)})}
+async function generate(){const f=$('image').files[0],idea=$('idea').value.trim();if(!f){alert('Pumili muna ng larawan.');return}if(!idea){alert('Ilagay muna ang paglalarawan ng video.');return}const btn=$('go'),vid=$('video'),dl=$('download');btn.disabled=true;btn.textContent='⏳ Gumagawa...';vid.style.display='none';dl.style.display='none';try{say('Inihahanda ang larawan...');const img=await dataUrl(f);const prompt=idea+'. Style: '+$('style').value+'. Cinematic motion, smooth natural movement, realistic lighting, detailed environment, stable camera, high visual quality.';say('Ipinapadala sa Wan 2.2. Maaaring maghintay habang nasa pila.');const res=await fetch(BASE+'/gradio_api/call/generate_video',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({data:[{url:img,orig_name:f.name,mime_type:f.type||'image/png',size:f.size,is_stream:false,meta:{_type:'gradio.FileData'}},prompt,Number($('steps').value),NEG,Number($('duration').value),1,1,42,true]})});if(!res.ok)throw Error('Hindi tinanggap ng API ('+res.status+').');const start=await res.json();if(!start.event_id)throw Error('Walang event ID mula sa API.');say('Gumagawa na ng video. Hintayin ang resulta...');const rr=await fetch(BASE+'/gradio_api/call/generate_video/'+encodeURIComponent(start.event_id));if(!rr.ok)throw Error('Hindi makuha ang resulta ('+rr.status+').');const lines=(await rr.text()).split(/\r?\n/);let result=null,err=null;for(let i=0;i<lines.length;i++){if(lines[i].startsWith('event:')&&lines[i].slice(6).trim()==='error'){const d=lines.slice(i+1).find(x=>x.startsWith('data:'));err=d?d.slice(5).trim():'Nagkaroon ng error ang demo.'}if(lines[i].startsWith('event:')&&lines[i].slice(6).trim()==='complete'){const d=lines.slice(i+1).find(x=>x.startsWith('data:'));if(d)try{result=JSON.parse(d.slice(5).trim())}catch(e){}}}if(err)throw Error(err);if(!Array.isArray(result)||!result[0])throw Error('Walang video file sa sagot ng API.');const out=result[0],url=out.url||(out.path?BASE+'/gradio_api/file='+out.path:'');if(!url)throw Error('Walang video URL.');vid.src=url;vid.style.display='block';vid.load();dl.href=url;dl.style.display='inline-block';say('Tapos na! Pindutin ang play para panoorin.');vid.scrollIntoView({behavior:'smooth',block:'center'})}catch(e){let m=String(e.message||e);if(m.includes('Failed to fetch')||m.includes('NetworkError'))m='Hindi makakonekta ang browser. Posibleng CORS restriction o problema ng demo. Kung ito ang error, kailangan ng backend/proxy.';say('Hindi natuloy: '+m+'\nSubukan ulit mamaya; maaaring puno o pansamantalang hindi available ang demo.')}finally{btn.disabled=false;btn.textContent='🎥 Gumawa ng AI Video'}}
+</script></body></html>
