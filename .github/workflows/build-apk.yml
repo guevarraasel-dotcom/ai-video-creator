@@ -1,11 +1,16 @@
+
 name: Build AI Video Creator APK
 
 on:
   workflow_dispatch:
+  push:
+    branches:
+      - main
 
 jobs:
   build:
     runs-on: ubuntu-latest
+
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -13,7 +18,7 @@ jobs:
       - name: Check ZIP file
         run: |
           ls -la
-          test -f ai_video_creator_phone_build_pack.zip
+          test -f AI_Video_Creator_Phone_Build_Pack.zip
 
       - name: Set up Java
         uses: actions/setup-java@v4
@@ -22,10 +27,17 @@ jobs:
           java-version: '17'
 
       - name: Extract project
-        run: unzip -o ai_video_creator_phone_build_pack.zip -d project
+        run: unzip -o AI_Video_Creator_Phone_Build_Pack.zip -d project
 
       - name: Find Gradle project
-        run: find project -type f \( -name settings.gradle -o -name settings.gradle.kts \)
+        run: |
+          SETTINGS=$(find project -type f \( -name settings.gradle -o -name settings.gradle.kts \) | head -n 1)
+          if [ -z "$SETTINGS" ]; then
+            echo "ERROR: Hindi nakita ang settings.gradle o settings.gradle.kts sa ZIP file."
+            echo "Tingnan kung Android Gradle project ang laman ng ZIP."
+            exit 1
+          fi
+          echo "SETTINGS=$SETTINGS" >> "$GITHUB_ENV"
 
       - name: Set up Gradle
         uses: gradle/actions/setup-gradle@v4
@@ -34,13 +46,16 @@ jobs:
 
       - name: Build APK
         run: |
-          SETTINGS=$(find project -type f \( -name settings.gradle -o -name settings.gradle.kts \) | head -n 1)
-          if [ -z "$SETTINGS" ]; then
-            echo "Hindi nakita ang settings.gradle."
-            exit 1
-          fi
           cd "$(dirname "$SETTINGS")"
           gradle assembleDebug
+
+      - name: Upload APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: AI-Video-Creator-debug-APK
+          path: project/**/build/outputs/apk/debug/*.apk
+          if-no-files-found: error
+
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
