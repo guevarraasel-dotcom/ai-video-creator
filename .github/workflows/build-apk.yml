@@ -30,12 +30,17 @@ jobs:
           distribution: temurin
           java-version: '17'
 
+      - name: Set up Gradle 8.7
+        uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '8.7'
+
       - name: Extract Android project
         run: |
           set -e
           mkdir -p android-project
           unzip -o AI_Video_Creator_Phone_Build_Pack.zip -d android-project
-          find android-project -maxdepth 5 -type f | head -200
+          find android-project -maxdepth 6 -type f | head -200
 
       - name: Locate Gradle project
         id: gradle
@@ -43,23 +48,18 @@ jobs:
         run: |
           ROOT=""
           while IFS= read -r -d '' FILE; do
-            DIR="$(dirname "$FILE")"
-            if [ -f "$DIR/gradlew" ]; then
-              ROOT="$DIR"
-              break
-            fi
+            ROOT="$(dirname "$FILE")"
+            break
           done < <(find "$GITHUB_WORKSPACE/android-project" -type f \( -name settings.gradle -o -name settings.gradle.kts \) -print0)
 
           if [ -z "$ROOT" ]; then
-            echo "ERROR: Walang Gradle project na may settings.gradle at gradlew sa ZIP."
-            find android-project -type f \( -name gradlew -o -name settings.gradle -o -name settings.gradle.kts -o -name build.gradle -o -name build.gradle.kts \)
+            echo "ERROR: Walang settings.gradle sa ZIP."
+            find android-project -type f \( -name settings.gradle -o -name settings.gradle.kts -o -name build.gradle -o -name build.gradle.kts \)
             exit 1
           fi
 
+          echo "Project root: $ROOT"
           echo "project_dir=$ROOT" >> "$GITHUB_OUTPUT"
-
-      - name: Make Gradle wrapper executable
-        run: chmod +x "${{ steps.gradle.outputs.project_dir }}/gradlew"
 
       - name: Align Java and Kotlin JVM targets
         working-directory: ${{ steps.gradle.outputs.project_dir }}
@@ -84,7 +84,7 @@ jobs:
 
       - name: Build debug APK
         working-directory: ${{ steps.gradle.outputs.project_dir }}
-        run: ./gradlew --no-daemon -I "$RUNNER_TEMP/align-jvm.init.gradle" assembleDebug
+        run: gradle --no-daemon -I "$RUNNER_TEMP/align-jvm.init.gradle" assembleDebug
 
       - name: Upload APK artifact
         uses: actions/upload-artifact@v4
