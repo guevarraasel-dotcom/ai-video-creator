@@ -1,94 +1,78 @@
 name: Build AI Video Creator APK
 
 on:
-workflow_dispatch:
-push:
-branches:
-- main
+  workflow_dispatch:
+  push:
+    branches:
+      - main
 
 permissions:
-contents: read
+  contents: read
 
 jobs:
-build:
-runs-on: ubuntu-latest
+  build:
+    runs-on: ubuntu-latest
 
-steps:
-  - name: Checkout repository
-    uses: actions/checkout@v4
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
 
-  - name: Check build ZIP
-    run: |
-      test -f AI_Video_Creator_Phone_Build_Pack.zip
-      unzip -l AI_Video_Creator_Phone_Build_Pack.zip
+      - name: Check build ZIP
+        run: |
+          set -e
+          test -f AI_Video_Creator_Phone_Build_Pack.zip
+          unzip -t AI_Video_Creator_Phone_Build_Pack.zip
+          unzip -l AI_Video_Creator_Phone_Build_Pack.zip
 
-  - name: Set up Java 17
-    uses: actions/setup-java@v4
-    with:
-      distribution: temurin
-      java-version: '17'
+      - name: Set up Java 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
 
-  - name: Set up Android SDK
-    uses: android-actions/setup-android@v3
+      - name: Set up Android SDK
+        uses: android-actions/setup-android@v3
 
-  - name: Extract Android project
-    run: |
-      mkdir -p android-project
-      unzip -o AI_Video_Creator_Phone_Build_Pack.zip -d android-project
-      echo "Extracted files:"
-      find android-project -maxdepth 4 -type f | head -200
+      - name: Extract Android project
+        run: |
+          set -e
+          mkdir -p android-project
+          unzip -o AI_Video_Creator_Phone_Build_Pack.zip -d android-project
+          find android-project -maxdepth 5 -type f | head -200
 
-  - name: Locate Gradle project
-    id: gradle
-    shell: bash
-    run: |
-      ROOT=""
-      while IFS= read -r -d '' FILE; do
-        DIR="$(dirname "$FILE")"
-        if [ -f "$DIR/gradlew" ]; then
-          ROOT="$DIR"
-          break
-        fi
-      done < <(find "$GITHUB_WORKSPACE/android-project" -type f \( -name settings.gradle -o -name settings.gradle.kts \) -print0)
+      - name: Locate Gradle project
+        id: gradle
+        shell: bash
+        run: |
+          ROOT=""
+          while IFS= read -r -d '' FILE; do
+            DIR="$(dirname "$FILE")"
+            if [ -f "$DIR/gradlew" ]; then
+              ROOT="$DIR"
+              break
+            fi
+          done < <(find "$GITHUB_WORKSPACE/android-project" -type f \( -name settings.gradle -o -name settings.gradle.kts \) -print0)
 
-      if [ -z "$ROOT" ]; then
-        echo "ERROR: Walang Gradle project na may settings.gradle at gradlew sa ZIP."
-        echo "Mga nahanap na Gradle file:"
-        find android-project -type f \( -name gradlew -o -name settings.gradle -o -name settings.gradle.kts -o -name build.gradle -o -name build.gradle.kts \)
-        exit 1
-      fi
+          if [ -z "$ROOT" ]; then
+            echo "ERROR: Walang Gradle project na may settings.gradle at gradlew sa ZIP."
+            find android-project -type f \( -name gradlew -o -name settings.gradle -o -name settings.gradle.kts -o -name build.gradle -o -name build.gradle.kts \)
+            exit 1
+          fi
 
-      echo "project_dir=$ROOT" >> "$GITHUB_OUTPUT"
-      echo "Gradle project: $ROOT"
+          echo "project_dir=$ROOT" >> "$GITHUB_OUTPUT"
 
-  - name: Make Gradle wrapper executable
-    run: chmod +x "${{ steps.gradle.outputs.project_dir }}/gradlew"
+      - name: Make Gradle wrapper executable
+        run: chmod +x "${{ steps.gradle.outputs.project_dir }}/gradlew"
 
-  - name: Configure Java and Kotlin JVM target
-    shell: bash
-    run: |
-      cat > "$RUNNER_TEMP/force-jvm-target.init.gradle" <<'GRADLE'
-      gradle.projectsEvaluated {
-          allprojects {
-              tasks.withType(org.gradle.api.tasks.compile.JavaCompile).configureEach {
-                  sourceCompatibility = '17'
-                  targetCompatibility = '17'
-                  options.release.set(17)
-              }
-          }
-      }
-      GRADLE
+      - name: Build debug APK
+        working-directory: ${{ steps.gradle.outputs.project_dir }}
+        run: ./gradlew --no-daemon assembleDebug
 
-  - name: Build debug APK
-    working-directory: ${{ steps.gradle.outputs.project_dir }}
-    run: |
-      ./gradlew --no-daemon -I "$RUNNER_TEMP/force-jvm-target.init.gradle" assembleDebug
-
-  - name: Upload APK artifact
-    uses: actions/upload-artifact@v4
-    with:
-      name: AI-Video-Creator-APK
-      path: |
-        **/build/outputs/apk/debug/*.apk
-      if-no-files-found: error
-      retention-days: 7
+      - name: Upload APK artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: AI-Video-Creator-APK
+          path: |
+            **/build/outputs/apk/debug/*.apk
+          if-no-files-found: error
+          retention-days: 7
