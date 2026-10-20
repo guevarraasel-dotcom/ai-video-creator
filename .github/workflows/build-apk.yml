@@ -1,3 +1,4 @@
+
 name: Build AI Video Creator APK
 
 on:
@@ -22,16 +23,12 @@ jobs:
           set -e
           test -f AI_Video_Creator_Phone_Build_Pack.zip
           unzip -t AI_Video_Creator_Phone_Build_Pack.zip
-          unzip -l AI_Video_Creator_Phone_Build_Pack.zip
 
       - name: Set up Java 17
         uses: actions/setup-java@v4
         with:
           distribution: temurin
           java-version: '17'
-
-      - name: Set up Android SDK
-        uses: android-actions/setup-android@v3
 
       - name: Extract Android project
         run: |
@@ -64,15 +61,35 @@ jobs:
       - name: Make Gradle wrapper executable
         run: chmod +x "${{ steps.gradle.outputs.project_dir }}/gradlew"
 
+      - name: Align Java and Kotlin JVM targets
+        working-directory: ${{ steps.gradle.outputs.project_dir }}
+        shell: bash
+        run: |
+          cat > "$RUNNER_TEMP/align-jvm.init.gradle" <<'GRADLE'
+          allprojects {
+            tasks.withType(org.gradle.api.tasks.compile.JavaCompile).configureEach {
+              sourceCompatibility = JavaVersion.VERSION_17.toString()
+              targetCompatibility = JavaVersion.VERSION_17.toString()
+            }
+            afterEvaluate {
+              tasks.matching {
+                it.name.toLowerCase().contains("kotlin") &&
+                it.hasProperty("kotlinOptions")
+              }.configureEach {
+                it.kotlinOptions.jvmTarget = "17"
+              }
+            }
+          }
+          GRADLE
+
       - name: Build debug APK
         working-directory: ${{ steps.gradle.outputs.project_dir }}
-        run: ./gradlew --no-daemon assembleDebug
+        run: ./gradlew --no-daemon -I "$RUNNER_TEMP/align-jvm.init.gradle" assembleDebug
 
       - name: Upload APK artifact
         uses: actions/upload-artifact@v4
         with:
           name: AI-Video-Creator-APK
-          path: |
-            **/build/outputs/apk/debug/*.apk
+          path: android-project/**/build/outputs/apk/debug/*.apk
           if-no-files-found: error
           retention-days: 7
