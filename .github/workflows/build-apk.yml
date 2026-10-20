@@ -61,22 +61,22 @@ jobs:
           echo "Project root: $ROOT"
           echo "project_dir=$ROOT" >> "$GITHUB_OUTPUT"
 
+      
       - name: Align Java and Kotlin JVM targets
         working-directory: ${{ steps.gradle.outputs.project_dir }}
         shell: bash
         run: |
           cat > "$RUNNER_TEMP/align-jvm.init.gradle" <<'GRADLE'
           allprojects {
-            tasks.withType(org.gradle.api.tasks.compile.JavaCompile).configureEach {
-              sourceCompatibility = JavaVersion.VERSION_17.toString()
-              targetCompatibility = JavaVersion.VERSION_17.toString()
-            }
             afterEvaluate {
+              tasks.withType(org.gradle.api.tasks.compile.JavaCompile).configureEach {
+                sourceCompatibility = JavaVersion.VERSION_1_8.toString()
+                targetCompatibility = JavaVersion.VERSION_1_8.toString()
+              }
               tasks.matching {
-                it.name.toLowerCase().contains("kotlin") &&
-                it.hasProperty("kotlinOptions")
+                it.name.toLowerCase().contains("kotlin")
               }.configureEach {
-                it.kotlinOptions.jvmTarget = "17"
+                it.kotlinOptions.jvmTarget = "1.8"
               }
             }
           }
