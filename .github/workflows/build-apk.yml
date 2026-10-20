@@ -1,64 +1,14 @@
-name: Build AI Video Creator APK
-
-on:
-  workflow_dispatch:
-  push:
-    branches:
-      - main
-
-permissions:
-  contents: read
-
-jobs:
-  build:
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-
-      - name: Check ZIP file
-        run: |
-          ls -la
-          test -f AI_Video_Creator_Phone_Build_Pack.zip
-
-      - name: Set up Java
-        uses: actions/setup-java@v4
-        with:
-          distribution: temurin
-          java-version: '17'
-
-      - name: Set up Gradle
-        uses: gradle/actions/setup-gradle@v4
-        with:
-          gradle-version: '8.9'
-
-      - name: Extract project
-        run: |
-          unzip -o AI_Video_Creator_Phone_Build_Pack.zip -d project
-
-      - name: Find Gradle project
-        shell: bash
-        run: |
-          SETTINGS=$(find project -type f \( -name settings.gradle -o -name settings.gradle.kts \) | head -n 1)
-
-          if [ -z "$SETTINGS" ]; then
-            echo "ERROR: Hindi nakita ang settings.gradle sa ZIP file."
-            exit 1
-          fi
-
-          echo "SETTINGS=$SETTINGS" >> "$GITHUB_ENV"
-          echo "Nakita ang Gradle project: $SETTINGS"
 
       - name: Force Java and Kotlin JVM target to 17
         shell: bash
         run: |
           cat > "$RUNNER_TEMP/force-jvm-target.init.gradle" <<'GRADLE'
-          allprojects {
-              afterEvaluate {
+          gradle.projectsEvaluated {
+              allprojects {
                   tasks.withType(org.gradle.api.tasks.compile.JavaCompile).configureEach {
                       sourceCompatibility = '17'
                       targetCompatibility = '17'
+                      options.release.set(17)
                   }
 
                   tasks.configureEach { task ->
@@ -69,16 +19,3 @@ jobs:
               }
           }
           GRADLE
-
-      - name: Build APK
-        shell: bash
-        run: |
-          cd "$(dirname "$SETTINGS")"
-          gradle --init-script "$RUNNER_TEMP/force-jvm-target.init.gradle" assembleDebug --no-daemon --stacktrace
-
-      - name: Upload APK
-        uses: actions/upload-artifact@v4
-        with:
-          name: AI-Video-Creator-debug-APK
-          path: project/**/build/outputs/apk/debug/*.apk
-          if-no-files-found: error
