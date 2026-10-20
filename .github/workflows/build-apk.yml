@@ -50,55 +50,31 @@ jobs:
           echo "SETTINGS=$SETTINGS" >> "$GITHUB_ENV"
           echo "Nakita ang Gradle project: $SETTINGS"
 
-      - name: Fix Java and Kotlin target
+      - name: Force Java and Kotlin JVM target to 17
         shell: bash
         run: |
-          python3 <<'PY'
-          from pathlib import Path
-          import re
+          cat > "$RUNNER_TEMP/force-jvm-target.init.gradle" <<'GRADLE'
+          allprojects {
+              afterEvaluate {
+                  tasks.withType(org.gradle.api.tasks.compile.JavaCompile).configureEach {
+                      sourceCompatibility = '17'
+                      targetCompatibility = '17'
+                  }
 
-          root = Path("project")
-          files = list(root.rglob("*.gradle")) + list(root.rglob("*.gradle.kts"))
-
-          if not files:
-              raise SystemExit("ERROR: Walang Gradle build files sa extracted project.")
-
-          for path in files:
-              text = path.read_text(encoding="utf-8")
-              original = text
-
-              # Itugma ang lumang Java 8 target sa Java 17.
-              text = text.replace("VERSION_1_8", "VERSION_17")
-              text = re.sub(
-                  r'(\b(?:sourceCompatibility|targetCompatibility)\s*=\s*)["\']1\.8["\']',
-                  r'\g<1>"17"',
-                  text
-              )
-
-              # Itugma rin ang Kotlin JVM target sa Java 17.
-              text = re.sub(
-                  r'(\bjvmTarget\s*=\s*)["\']1\.8["\']',
-                  r'\g<1>"17"',
-                  text
-              )
-              text = re.sub(
-                  r'\bJvmTarget\.JVM_1_8\b',
-                  'JvmTarget.JVM_17',
-                  text
-              )
-
-              if text != original:
-                  path.write_text(text, encoding="utf-8")
-                  print(f"Inayos ang Java/Kotlin target: {path}")
-
-          print(f"Nasuri ang {len(files)} Gradle file(s).")
-          PY
+                  tasks.configureEach { task ->
+                      if (task.name.toLowerCase().contains('kotlin') && task.hasProperty('kotlinOptions')) {
+                          task.kotlinOptions.jvmTarget = '17'
+                      }
+                  }
+              }
+          }
+          GRADLE
 
       - name: Build APK
         shell: bash
         run: |
           cd "$(dirname "$SETTINGS")"
-          gradle assembleDebug --no-daemon
+          gradle --init-script "$RUNNER_TEMP/force-jvm-target.init.gradle" assembleDebug --no-daemon --stacktrace
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
