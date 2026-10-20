@@ -1,8 +1,3 @@
-
-      - name: Fix Java and Kotlin target
-        run: |
-          find project -type f -name "build.gradle" -exec sed -i 's/VERSION_1_8/VERSION_17/g' {} +
-
 name: Build AI Video Creator APK
 
 on:
@@ -10,6 +5,9 @@ on:
   push:
     branches:
       - main
+
+permissions:
+  contents: read
 
 jobs:
   build:
@@ -30,11 +28,17 @@ jobs:
           distribution: temurin
           java-version: '17'
 
+      - name: Set up Gradle
+        uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '8.9'
+
       - name: Extract project
         run: |
           unzip -o AI_Video_Creator_Phone_Build_Pack.zip -d project
 
       - name: Find Gradle project
+        shell: bash
         run: |
           SETTINGS=$(find project -type f \( -name settings.gradle -o -name settings.gradle.kts \) | head -n 1)
 
@@ -44,16 +48,57 @@ jobs:
           fi
 
           echo "SETTINGS=$SETTINGS" >> "$GITHUB_ENV"
+          echo "Nakita ang Gradle project: $SETTINGS"
 
-      - name: Set up Gradle
-        uses: gradle/actions/setup-gradle@v4
-        with:
-          gradle-version: '8.9'
+      - name: Fix Java and Kotlin target
+        shell: bash
+        run: |
+          python3 <<'PY'
+          from pathlib import Path
+          import re
+
+          root = Path("project")
+          files = list(root.rglob("*.gradle")) + list(root.rglob("*.gradle.kts"))
+
+          if not files:
+              raise SystemExit("ERROR: Walang Gradle build files sa extracted project.")
+
+          for path in files:
+              text = path.read_text(encoding="utf-8")
+              original = text
+
+              # Itugma ang lumang Java 8 target sa Java 17.
+              text = text.replace("VERSION_1_8", "VERSION_17")
+              text = re.sub(
+                  r'(\b(?:sourceCompatibility|targetCompatibility)\s*=\s*)["\']1\.8["\']',
+                  r'\g<1>"17"',
+                  text
+              )
+
+              # Itugma rin ang Kotlin JVM target sa Java 17.
+              text = re.sub(
+                  r'(\bjvmTarget\s*=\s*)["\']1\.8["\']',
+                  r'\g<1>"17"',
+                  text
+              )
+              text = re.sub(
+                  r'\bJvmTarget\.JVM_1_8\b',
+                  'JvmTarget.JVM_17',
+                  text
+              )
+
+              if text != original:
+                  path.write_text(text, encoding="utf-8")
+                  print(f"Inayos ang Java/Kotlin target: {path}")
+
+          print(f"Nasuri ang {len(files)} Gradle file(s).")
+          PY
 
       - name: Build APK
+        shell: bash
         run: |
           cd "$(dirname "$SETTINGS")"
-          gradle assembleDebug
+          gradle assembleDebug --no-daemon
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
