@@ -1,3 +1,4 @@
+
 name: Build AI Video Creator APK
 
 on:
@@ -21,7 +22,10 @@ jobs:
         shell: bash
         run: |
           set -e
-          test -f AI_Video_Creator_Phone_Build_Pack.zip
+          if [ ! -f AI_Video_Creator_Phone_Build_Pack.zip ]; then
+            echo "ERROR: Missing AI_Video_Creator_Phone_Build_Pack.zip"
+            exit 1
+          fi
           unzip -t AI_Video_Creator_Phone_Build_Pack.zip
 
       - name: Set up Java 17
@@ -47,20 +51,52 @@ jobs:
         id: gradle
         shell: bash
         run: |
+          set -e
           ROOT=""
+
           while IFS= read -r -d '' FILE; do
             ROOT="$(dirname "$FILE")"
             break
-          done < <(find "$GITHUB_WORKSPACE/android-project" -type f \( -name settings.gradle -o -name settings.gradle.kts \) -print0)
+          done < <(
+            find "$GITHUB_WORKSPACE/android-project" \
+              -type f \
+              \( -name settings.gradle -o -name settings.gradle.kts \) \
+              -print0
+          )
 
           if [ -z "$ROOT" ]; then
-            echo "ERROR: Walang settings.gradle sa ZIP."
-            find android-project -type f \( -name settings.gradle -o -name settings.gradle.kts -o -name build.gradle -o -name build.gradle.kts \)
+            echo "ERROR: No settings.gradle found in ZIP."
+            find android-project -type f \
+              \( -name settings.gradle -o -name settings.gradle.kts \
+              -o -name build.gradle -o -name build.gradle.kts \)
             exit 1
           fi
 
           echo "Project root: $ROOT"
           echo "project_dir=$ROOT" >> "$GITHUB_OUTPUT"
+
+      - name: Clean Kotlin Markdown fences
+        working-directory: ${{ steps.gradle.outputs.project_dir }}
+        shell: bash
+        run: |
+          set -e
+
+          while IFS= read -r -d '' FILE; do
+            if grep -qE '^[[:space:]]*```' "$FILE"; then
+              sed -i '/^[[:space:]]*```/d' "$FILE"
+              echo "Cleaned Markdown fences: $FILE"
+            fi
+          done < <(find app/src -type f -name '*.kt' -print0)
+
+          MAIN="app/src/main/java/com/aivideocreator/studio/MainActivity.kt"
+
+          if [ -f "$MAIN" ]; then
+            echo "MainActivity.kt first 20 lines:"
+            sed -n '1,20p' "$MAIN"
+          else
+            echo "WARNING: MainActivity.kt not found at expected path."
+            find app/src -type f -name '*MainActivity.kt'
+          fi
 
       - name: Align Java and Kotlin JVM targets
         working-directory: ${{ steps.gradle.outputs.project_dir }}
@@ -70,7 +106,8 @@ jobs:
           allprojects {
             afterEvaluate {
               tasks.matching {
-                it.name.startsWith("compile") && it.name.endsWith("Kotlin")
+                it.name.startsWith("compile") &&
+                it.name.endsWith("Kotlin")
               }.configureEach {
                 kotlinOptions.jvmTarget = "1.8"
               }
@@ -80,12 +117,38 @@ jobs:
 
       - name: Build debug APK
         working-directory: ${{ steps.gradle.outputs.project_dir }}
-        run: gradle --no-daemon -I "$RUNNER_TEMP/align-jvm.init.gradle" assembleDebug
+        shell: bash
+        run: |
+          set -o pipefail
+          gradle --no-daemon \
+            -I "$RUNNER_TEMP/align-jvm.init.gradle" \
+            assembleDebug
+
+      - name: Find APK
+        id: apk
+        if: success()
+        shell: bash
+        run: |
+          set -e
+          APK="$(find android-project -type f \
+            -path '*/build/outputs/apk/debug/*.apk' \
+            ! -name '*-androidTest*.apk' \
+            -print -quit)"
+
+          if [ -z "$APK" ]; then
+            echo "ERROR: APK was not generated."
+            exit 1
+          fi
+
+          echo "Found APK: $APK"
+          echo "path=$APK" >> "$GITHUB_OUTPUT"
 
       - name: Upload APK artifact
         uses: actions/upload-artifact@v4
+        if: success()
         with:
           name: AI-Video-Creator-APK
-          path: android-project/**/build/outputs/apk/debug/*.apk
+          path: ${{ steps.apk.outputs.path }}
           if-no-files-found: error
           retention-days: 7
+
