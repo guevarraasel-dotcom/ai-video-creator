@@ -1,5 +1,3 @@
-
-
 name: Build AI Video Creator APK
 
 on:
@@ -71,14 +69,10 @@ jobs:
           cat > "$RUNNER_TEMP/align-jvm.init.gradle" <<'GRADLE'
           allprojects {
             afterEvaluate {
-              tasks.withType(org.gradle.api.tasks.compile.JavaCompile).configureEach {
-                sourceCompatibility = JavaVersion.VERSION_17.toString()
-                targetCompatibility = JavaVersion.VERSION_17.toString()
-              }
               tasks.matching {
                 it.name.startsWith("compile") && it.name.endsWith("Kotlin")
               }.configureEach {
-                kotlinOptions.jvmTarget = "17"
+                kotlinOptions.jvmTarget = "1.8"
               }
             }
           }
