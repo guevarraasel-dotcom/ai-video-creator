@@ -1,0 +1,80 @@
+<!doctype html>
+<html lang="tl">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>My AI Video Creator</title>
+<style>
+:root{color-scheme:dark;--bg:#080d1d;--panel:#10182b;--line:#27334d;--purple:#8b5cf6;--text:#edf2ff;--muted:#a8b4ce}
+*{box-sizing:border-box}body{margin:0;background:linear-gradient(160deg,#10142a,#070b16 60%);font:15px system-ui,Arial;color:var(--text)}
+header{padding:22px 18px;background:#0e1527;border-bottom:1px solid var(--line);position:sticky;top:0;z-index:2}
+.brand{display:flex;align-items:center;gap:12px}.logo{background:linear-gradient(135deg,#8b5cf6,#5b8cff);padding:12px;border-radius:15px;font-size:24px}
+h1{font-size:21px;margin:0}header p{margin:4px 0 0;color:var(--muted);font-size:13px}
+main{max-width:850px;margin:auto;padding:16px;display:grid;gap:15px}
+.card{background:rgba(16,24,43,.96);border:1px solid var(--line);border-radius:18px;padding:16px}
+h2{font-size:17px;margin:0 0 12px}label{display:block;color:#d7e0f7;font-size:13px;margin:12px 0 6px}
+input,textarea,select{width:100%;background:#080f20;color:var(--text);border:1px solid #35415d;border-radius:10px;padding:11px;font:inherit}
+textarea{min-height:110px;resize:vertical}button{border:0;border-radius:11px;padding:12px 14px;background:var(--purple);color:white;font-weight:700;font-size:14px;cursor:pointer}
+button.secondary{background:#202c44;border:1px solid #3a4865}button:active{transform:scale(.99)}
+.row{display:flex;gap:9px;flex-wrap:wrap}.row>*{flex:1}.hint{font-size:12px;color:var(--muted);line-height:1.5}.status{padding:10px;border-radius:10px;background:#0b1325;color:#c5d2ef;font-size:13px;margin-top:10px}
+.scene{border:1px solid #34415c;background:#0b1223;border-radius:13px;padding:13px;margin-top:10px}.scene h3{font-size:14px;margin:0 0 7px}.scene p{margin:6px 0;color:#d5def3;font-size:13px;line-height:1.45}.scene pre{white-space:pre-wrap;word-break:break-word;color:#bdc9e5;font:12px system-ui;margin:7px 0}
+.pill{display:inline-block;background:#34245b;color:#d9c9ff;padding:4px 8px;border-radius:20px;font-size:11px;margin-bottom:8px}
+.small{font-size:11px;color:var(--muted)}footer{text-align:center;padding:0 20px 26px;color:var(--muted);font-size:12px}
+</style>
+</head>
+<body>
+<header><div class="brand"><div class="logo">🎬</div><div><h1>My AI Video Creator</h1><p>Story → Scenes → Tagalog dialogue → Video prompts</p></div></div></header>
+<main>
+<section class="card">
+ <span class="pill">STORY STUDIO</span><h2>1. Ipasok ang kuwento</h2>
+ <label>Pamagat</label><input id="title" value="Paubaya">
+ <label>Buong kuwento / ideya</label><textarea id="story">Isang lalaking Pilipino ang naglalakad mag-isa sa tahimik na gubat sa paglubog ng araw. Nasasaktan siya ngunit pinipili niyang magpaubaya at magpatuloy sa buhay.</textarea>
+ <div class="row"><div><label>Haba ng bawat eksena</label><select id="duration"><option value="8">8 segundo</option><option value="10" selected>10 segundo</option><option value="15">15 segundo</option></select></div><div><label>Format</label><select id="format"><option value="9:16" selected>Vertical 9:16 (Reels/TikTok)</option><option value="16:9">Landscape 16:9</option><option value="1:1">Square 1:1</option></select></div></div>
+ <div class="row"><div><label>Estilo</label><select id="style"><option>Realistic cinematic</option><option>Romantic drama</option><option>Sad emotional film</option><option>1990s nostalgic</option><option>Comedy</option><option>Anime</option></select></div><div><label>Audio</label><select id="audio"><option>Tagalog dialogue + soft background music</option><option>Sad instrumental music only</option><option>Natural ambience only</option><option>Comedy sound effects + Tagalog dialogue</option></select></div></div>
+ <label>Mga tauhan / character consistency</label><input id="characters" value="Isang batang lalaking Pilipino; panatilihing pareho ang mukha, buhok at damit sa lahat ng eksena.">
+ <div class="row" style="margin-top:14px"><button id="make">Gumawa ng mga eksena</button><button class="secondary" id="clear">I-reset</button></div>
+ <div class="hint" style="margin-top:10px">Gumagawa ito ng scene breakdown at mga prompt. Hindi pa nito direktang nirender ang AI video; kailangan ng compatible na video-generation service para roon.</div>
+</section>
+<section class="card"><h2>2. Mga eksena</h2><div id="scenes"><p class="hint">Pindutin ang “Gumawa ng mga eksena” para hatiin ang kuwento sa maiikling clips.</p></div>
+ <div class="row" style="margin-top:14px"><button id="txt" class="secondary">I-download ang prompts (.txt)</button><button id="json" class="secondary">I-download ang project (.json)</button></div>
+ <div id="status" class="status">Handa na. Gumawa muna ng mga eksena.</div>
+</section>
+<section class="card"><h2>3. Para maging totoong AI video</h2>
+ <p class="hint">Kopyahin ang prompt ng bawat eksena at ilagay sa video-generation tool na may access ka (halimbawa, Google Flow/Veo kung available sa account mo). Ang aktuwal na pag-generate at pag-download ng video ay ginagawa ng serbisyong iyon.</p>
+ <p class="hint"><b>Libreng paalala:</b> Huwag ilagay ang API key sa pampublikong HTML file o ipadala ito sa ibang tao. Ang ilang video model/API ay maaaring mangailangan ng billing o may limitasyon sa libreng paggamit.</p>
+ <button class="secondary" id="flow">Buksan ang Google Flow</button>
+</section>
+</main>
+<footer>My AI Video Creator • Local starter prototype • Walang API key na kinokolekta o sine-save.</footer>
+<script>
+let generated=[];
+function escapeHtml(s){return s.replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
+function splitStory(story){
+ let parts=story.split(/(?<=[.!?])\s+|\n+/).map(s=>s.trim()).filter(Boolean);
+ if(parts.length<2){let words=story.trim().split(/\s+/), n=Math.ceil(words.length/18);parts=[];for(let i=0;i<words.length;i+=n)parts.push(words.slice(i,i+n).join(' '));}
+ return parts.length?parts:[story];
+}
+function make(){
+ const title=document.querySelector('#title').value.trim()||'Untitled Story', story=document.querySelector('#story').value.trim();
+ if(!story){document.querySelector('#status').textContent='Ilagay muna ang kuwento.';return}
+ const duration=+document.querySelector('#duration').value, format=document.querySelector('#format').value, style=document.querySelector('#style').value, audio=document.querySelector('#audio').value, chars=document.querySelector('#characters').value;
+ const parts=splitStory(story);
+ generated=parts.map((part,i)=>{
+  const dialogue=audio.includes('dialogue')?(i===0?'“Minsan, kailangan nating tanggapin ang mga bagay na hindi para sa atin.”':i===parts.length-1?'“Masakit man, pipiliin kong magpatuloy.”':'“Hindi madali, pero unti-unti akong matututo.”'):'Walang dialogue.';
+  const prompt=`${style} video, ${format} aspect ratio, exactly ${duration} seconds. Story: ${part}. Character continuity: ${chars}. Action should be visible and natural, with smooth cinematic camera movement. Audio: ${audio}. Tagalog dialogue if appropriate: ${dialogue} Keep visual continuity with the previous scene. No subtitles or on-screen text unless requested.`;
+  return {scene:i+1,title:`Eksena ${i+1}`,duration,story:part,dialogue,prompt};
+ });
+ render(title,format,generated);
+ document.querySelector('#status').textContent=`Nagawa ang ${generated.length} eksena. Maaari mo nang kopyahin o i-download ang prompts.`;
+}
+function render(title,format,scenes){
+ document.querySelector('#scenes').innerHTML=`<p class="hint"><b>${escapeHtml(title)}</b> • ${scenes.length} eksena • ${format}</p>`+scenes.map(s=>`<div class="scene"><span class="pill">${s.duration} SEGUNDO</span><h3>${escapeHtml(s.title)} — ${escapeHtml(s.story)}</h3><p><b>Tagalog dialogue:</b> ${escapeHtml(s.dialogue)}</p><pre>${escapeHtml(s.prompt)}</pre><button class="secondary" onclick="copyPrompt(${s.scene-1})">Kopyahin ang prompt</button></div>`).join('');
+}
+function copyPrompt(i){navigator.clipboard?.writeText(generated[i].prompt).then(()=>document.querySelector('#status').textContent='Nakopya ang prompt. I-paste ito sa video-generation tool.').catch(()=>document.querySelector('#status').textContent='Piliin at kopyahin ang prompt sa eksena.');}
+function download(name,content,type){const blob=new Blob([content],{type}),url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download=name;a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);}
+document.querySelector('#make').onclick=make;
+document.querySelector('#clear').onclick=()=>{document.querySelector('#title').value='';document.querySelector('#story').value='';document.querySelector('#scenes').innerHTML='';generated=[];document.querySelector('#status').textContent='Na-reset. Maglagay ng bagong kuwento.'};
+document.querySelector('#txt').onclick=()=>{if(!generated.length){make();if(!generated.length)return}download('my-ai-video-prompts.txt',generated.map(s=>`SCENE ${s.scene} (${s.duration}s)\n${s.story}\nDIALOGUE: ${s.dialogue}\nPROMPT:\n${s.prompt}\n\n`).join(''),'text/plain')};
+document.querySelector('#json').onclick=()=>{if(!generated.length){make();if(!generated.length)return}download('my-ai-video-project.json',JSON.stringify({title:document.querySelector('#title').value,format:document.querySelector('#format').value,scenes:generated},null,2),'application/json')};
+document.querySelector('#flow').onclick=()=>window.open('https://labs.google/fx/tools/flow','_blank','noopener');
+</script>
+</body></html>
