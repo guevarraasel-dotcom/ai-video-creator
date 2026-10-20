@@ -19,6 +19,7 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Check build ZIP
+        shell: bash
         run: |
           set -e
           test -f AI_Video_Creator_Phone_Build_Pack.zip
@@ -36,6 +37,7 @@ jobs:
           gradle-version: '8.9'
 
       - name: Extract Android project
+        shell: bash
         run: |
           set -e
           mkdir -p android-project
@@ -61,7 +63,6 @@ jobs:
           echo "Project root: $ROOT"
           echo "project_dir=$ROOT" >> "$GITHUB_OUTPUT"
 
-      
       - name: Align Java and Kotlin JVM targets
         working-directory: ${{ steps.gradle.outputs.project_dir }}
         shell: bash
@@ -74,9 +75,9 @@ jobs:
                 targetCompatibility = JavaVersion.VERSION_1_8.toString()
               }
               tasks.matching {
-                it.name.toLowerCase().contains("kotlin")
+                it.name.startsWith("compile") && it.name.endsWith("Kotlin")
               }.configureEach {
-                it.kotlinOptions.jvmTarget = "1.8"
+                kotlinOptions.jvmTarget = "1.8"
               }
             }
           }
