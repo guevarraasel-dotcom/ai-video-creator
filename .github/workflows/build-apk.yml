@@ -1,4 +1,8 @@
 
+      - name: Fix Java and Kotlin target
+        run: |
+          find project -type f -name "build.gradle" -exec sed -i 's/VERSION_1_8/VERSION_17/g' {} +
+
 name: Build AI Video Creator APK
 
 on:
