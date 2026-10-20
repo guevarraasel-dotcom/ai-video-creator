@@ -22,10 +22,11 @@ jobs:
         shell: bash
         run: |
           set -e
-          if [ ! -f AI_Video_Creator_Phone_Build_Pack.zip ]; then
-            echo "ERROR: Missing AI_Video_Creator_Phone_Build_Pack.zip"
-            exit 1
-          fi
+          if grep -qFx '\' "$FILE"; then
+  grep -vFx '\' "$FILE" > "$FILE.tmp"
+  mv "$FILE.tmp" "$FILE"
+  echo "Removed stray backslash lines: $FILE"
+fi
           unzip -t AI_Video_Creator_Phone_Build_Pack.zip
 
       - name: Set up Java 17
