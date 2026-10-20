@@ -1,14 +1,24 @@
+
 name: Build AI Video Creator APK
 
 on:
   workflow_dispatch:
+  push:
+    branches:
+      - main
 
 jobs:
   build:
     runs-on: ubuntu-latest
+
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+
+      - name: Check ZIP file
+        run: |
+          ls -la
+          test -f AI_Video_Creator_Phone_Build_Pack.zip
 
       - name: Set up Java
         uses: actions/setup-java@v4
@@ -16,13 +26,11 @@ jobs:
           distribution: temurin
           java-version: '17'
 
-      - name: Extract project ZIP
-        run: |
-          unzip -o ai_video_creator_phone_build_pack.zip -d project
+      - name: Extract project
+        run: unzip -o AI_Video_Creator_Phone_Build_Pack.zip -d project
 
-      - name: Find Android project
-        run: |
-          find project -type f \( -name settings.gradle -o -name settings.gradle.kts \)
+      - name: Find Gradle project
+        run: find project -type f \( -name settings.gradle -o -name settings.gradle.kts \)
 
       - name: Set up Gradle
         uses: gradle/actions/setup-gradle@v4
@@ -32,7 +40,10 @@ jobs:
       - name: Build APK
         run: |
           SETTINGS=$(find project -type f \( -name settings.gradle -o -name settings.gradle.kts \) | head -n 1)
-          test -n "$SETTINGS" || { echo "Walang settings.gradle"; exit 1; }
+          if [ -z "$SETTINGS" ]; then
+            echo "Hindi nakita ang settings.gradle."
+            exit 1
+          fi
           cd "$(dirname "$SETTINGS")"
           gradle assembleDebug
 
