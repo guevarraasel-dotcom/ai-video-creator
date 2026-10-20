@@ -33,30 +33,23 @@ jobs:
       - name: Find Gradle project
         run: |
           SETTINGS=$(find project -type f \( -name settings.gradle -o -name settings.gradle.kts \) | head -n 1)
+
           if [ -z "$SETTINGS" ]; then
-            echo "ERROR: Hindi nakita ang settings.gradle sa ZIP."
+            echo "ERROR: Hindi nakita ang settings.gradle sa ZIP file."
             exit 1
           fi
+
           echo "SETTINGS=$SETTINGS" >> "$GITHUB_ENV"
 
       - name: Set up Gradle
         uses: gradle/actions/setup-gradle@v4
         with:
-          gradle-version: '8.7'
+          gradle-version: '8.9'
 
       - name: Build APK
         run: |
           cd "$(dirname "$SETTINGS")"
           gradle assembleDebug
-
-      - name: Upload APK
-        uses: actions/upload-artifact@v4
-        with:
-          name: AI-Video-Creator-debug-APK
-          path: project/**/build/outputs/apk/debug/*.apk
-          if-no-files-found: error
-
-
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
