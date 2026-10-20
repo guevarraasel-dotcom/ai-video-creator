@@ -27,14 +27,14 @@ jobs:
           java-version: '17'
 
       - name: Extract project
-        run: unzip -o AI_Video_Creator_Phone_Build_Pack.zip -d project
+        run: |
+          unzip -o AI_Video_Creator_Phone_Build_Pack.zip -d project
 
       - name: Find Gradle project
         run: |
           SETTINGS=$(find project -type f \( -name settings.gradle -o -name settings.gradle.kts \) | head -n 1)
           if [ -z "$SETTINGS" ]; then
-            echo "ERROR: Hindi nakita ang settings.gradle o settings.gradle.kts sa ZIP file."
-            echo "Tingnan kung Android Gradle project ang laman ng ZIP."
+            echo "ERROR: Hindi nakita ang settings.gradle sa ZIP."
             exit 1
           fi
           echo "SETTINGS=$SETTINGS" >> "$GITHUB_ENV"
@@ -55,6 +55,7 @@ jobs:
           name: AI-Video-Creator-debug-APK
           path: project/**/build/outputs/apk/debug/*.apk
           if-no-files-found: error
+
 
 
       - name: Upload APK
