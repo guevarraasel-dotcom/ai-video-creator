@@ -1,0 +1,131 @@
+
+<!DOCTYPE html>
+<html lang="fil">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>My AI Video Creator</title>
+<style>
+*{box-sizing:border-box}
+body{margin:0;background:#10111c;color:#fff;font-family:Arial,sans-serif;padding:20px}
+header{text-align:center;padding:20px 0}
+h1{color:#9c8cff;font-size:28px}
+p{color:#c6c6d8;line-height:1.5}
+main{max-width:600px;margin:auto}
+.card{background:#1d1e2d;padding:20px;border-radius:18px;margin-bottom:18px}
+label{display:block;margin:16px 0 8px;font-weight:bold}
+textarea,select,input{width:100%;padding:13px;border-radius:10px;border:1px solid #414258;background:#11121d;color:white;font-size:16px}
+textarea{min-height:120px;resize:vertical}
+button{width:100%;padding:15px;border:0;border-radius:12px;background:#8170ff;color:white;font-size:16px;font-weight:bold;margin-top:14px}
+.secondary{background:#303146}
+#result{white-space:pre-wrap;overflow-wrap:anywhere;line-height:1.6}
+.small{font-size:13px;color:#aaa}
+</style>
+</head>
+<body>
+<main>
+<header>
+<div style="font-size:42px">🎬</div>
+<h1>My AI Video Creator</h1>
+<p>Gumawa ng mga ideya at prompt para sa AI videos mo.</p>
+</header>
+
+<section class="card">
+<h2>✨ Gumawa ng Video Prompt</h2>
+
+<label for="idea">Ano ang gusto mong video?</label>
+<textarea id="idea" placeholder="Halimbawa: Isang lalaking Pilipino na naglalakad sa kagubatan..."></textarea>
+
+<label for="style">Estilo ng video</label>
+<select id="style">
+<option>Cinematic realistic</option>
+<option>Romantic movie</option>
+<option>Action movie</option>
+<option>Sad emotional</option>
+<option>Fantasy transformation</option>
+<option>Anime</option>
+<option>TikTok product advertisement</option>
+</select>
+
+<label for="ratio">Video format</label>
+<select id="ratio">
+<option value="9:16">9:16 — TikTok / Reels</option>
+<option value="16:9">16:9 — YouTube</option>
+<option value="1:1">1:1 — Square video</option>
+</select>
+
+<label for="duration">Haba ng video</label>
+<select id="duration">
+<option>5 seconds</option>
+<option selected>10 seconds</option>
+<option>15 seconds</option>
+<option>30 seconds</option>
+<option>60 seconds</option>
+</select>
+
+<button onclick="makePrompt()">✨ Gumawa ng Prompt</button>
+</section>
+
+<section class="card">
+<h2>📝 Iyong Video Prompt</h2>
+<p id="result">Lalabas dito ang iyong prompt pagkatapos pindutin ang Gumawa ng Prompt.</p>
+<button onclick="copyPrompt()">📋 Kopyahin ang Prompt</button>
+<button class="secondary" onclick="resetForm()">I-reset</button>
+<p class="small">Ang prompt na ito ay maaari mong gamitin sa isang AI video generator.</p>
+</section>
+
+<section class="card">
+<h3>🎥 Paano gumawa ng aktuwal na video?</h3>
+<p>Gumawa muna ng prompt, kopyahin ito, at gamitin sa isang compatible na AI video generation service. Hindi pa nakakagawa o nakakapag-download ng aktuwal na AI video ang website na ito nang walang koneksiyon sa video-generation service.</p>
+</section>
+
+<footer style="text-align:center;padding:15px;color:#aaa">
+My AI Video Creator © 2026
+</footer>
+</main>
+
+<script>
+function makePrompt(){
+const idea=document.getElementById('idea').value.trim();
+if(!idea){
+alert('Ilagay muna ang ideya ng video.');
+document.getElementById('idea').focus();
+return;
+}
+const style=document.getElementById('style').value;
+const ratio=document.getElementById('ratio').value;
+const duration=document.getElementById('duration').value;
+document.getElementById('result').textContent=
+'Create a '+duration+' '+style+' video. '+
+'Scene: '+idea+'. '+
+'Format: vertical or horizontal aspect ratio '+ratio+
+'. High-quality visuals, smooth camera movement, realistic lighting, detailed environment, natural motion, consistent characters, professional composition. '+
+'Duration: '+duration+'.';
+}
+async function copyPrompt(){
+const text=document.getElementById('result').textContent;
+if(text.startsWith('Lalabas dito')){
+alert('Gumawa muna ng prompt.');
+return;
+}
+try{
+await navigator.clipboard.writeText(text);
+alert('Nakopya ang prompt!');
+}catch(e){
+const area=document.createElement('textarea');
+area.value=text;
+document.body.appendChild(area);
+area.select();
+document.execCommand('copy');
+area.remove();
+alert('Nakopya ang prompt!');
+}
+}
+function resetForm(){
+document.getElementById('idea').value='';
+document.getElementById('result').textContent=
+'Lalabas dito ang iyong prompt pagkatapos pindutin ang Gumawa ng Prompt.';
+}
+</script>
+</body>
+</html>
