@@ -456,17 +456,38 @@ audioFile.addEventListener('change', () => {
     'Napili ang ' + file.name + '. Pindutin ang Play para makinig.';
 });
 
-downloadAudio.addEventListener('click', () => {
-  if (!selectedAudioUrl) return;
+downloadAudio.addEventListener('click', async () => {
+  const file = audioFile.files[0];
 
-  const link = document.createElement('a');
-  link.href = selectedAudioUrl;
-  link.download = selectedAudioName || 'aking-kanta.mp3';
-  document.body.appendChild(link);
-  link.click();
-  link.remove();
+  if (!file) {
+    musicStatus.textContent = 'Pumili muna ng audio file.';
+    return;
+  }
 
-  musicStatus.textContent = 'Sinimulan ang pag-download ng audio.';
+  try {
+    const blob = new Blob([file], {
+      type: file.type || 'audio/mpeg'
+    });
+
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+
+    link.href = url;
+    link.download = file.name || 'aking-kanta.mp3';
+    link.style.display = 'none';
+
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+
+    musicStatus.textContent =
+      'Sinimulan ang pag-download. Tingnan ang Downloads ng phone mo.';
+
+    setTimeout(() => URL.revokeObjectURL(url), 60000);
+  } catch (error) {
+    musicStatus.textContent =
+      'Hindi ma-download ang audio. Subukan muli sa browser.';
+  }
 });
 
 </script>
