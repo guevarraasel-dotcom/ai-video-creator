@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="fil">
 <head>
@@ -13,12 +14,13 @@ h1{color:#a99cff}
 p{color:#d0cede;line-height:1.5}
 .card{background:#1d1e2d;padding:18px;border-radius:16px;margin:14px 0}
 label{display:block;font-weight:bold;margin:15px 0 8px}
-textarea,select,input[type=file]{width:100%;padding:13px;border-radius:10px;border:1px solid #414258;background:#11121d;color:white;font-size:16px}
+textarea,select,input[type=file],input[type=text]{width:100%;padding:13px;border-radius:10px;border:1px solid #414258;background:#11121d;color:white;font-size:16px}
 textarea{min-height:105px}
 button{width:100%;padding:14px;margin-top:12px;border:0;border-radius:10px;background:#8170ff;color:white;font-size:16px;font-weight:bold}
 button:disabled{opacity:.55}
 #preview,#video{display:none;width:100%;margin-top:12px;border-radius:10px}
 #status{white-space:pre-wrap;overflow-wrap:anywhere;background:#11121d;padding:12px;border-radius:10px;margin-top:12px;color:#d7d2ff}
+#music-status{white-space:pre-wrap;overflow-wrap:anywhere}
 small{color:#aaa}
 a{color:#c5bdff}
 </style>
@@ -32,35 +34,24 @@ a{color:#c5bdff}
 </header>
 
 <section class="card" id="music-studio">
-  <h2>🎵 AI Music Studio</h2>
-  <p>Isulat, ayusin, at pakinggan ang lyrics ng sarili mong kanta.</p>
+<h2>🎵 AI Music Studio</h2>
+<p>Isulat, ayusin, at i-download ang lyrics ng sarili mong kanta.</p>
 
-  <label for="song-title">Pamagat ng kanta</label>
-  <input id="song-title" type="text"
-    placeholder="Halimbawa: Sa Huli, Ako ang Naiwan">
+<label for="song-title">Pamagat ng kanta</label>
+<input id="song-title" type="text" placeholder="Halimbawa: Sa Huli, Ako ang Naiwan">
 
-  <label for="lyrics">Lyrics ng kanta</label>
-  <textarea id="lyrics"
-    placeholder="Ilagay dito ang lyrics ng kanta mo..."></textarea>
+<label for="lyrics">Lyrics ng kanta</label>
+<textarea id="lyrics" placeholder="Ilagay dito ang lyrics ng kanta mo..."></textarea>
 
-  <button type="button" id="save-lyrics">
-    💾 I-download ang Lyrics (.txt)
-  </button>
+<button type="button" id="save-lyrics">💾 I-download ang Lyrics (.txt)</button>
 
-  <label for="audio-file">Pumili ng audio o MP3 mula sa phone</label>
-  <input id="audio-file" type="file"
-    accept="audio/*,.mp3">
+<label for="audio-file">Pumili ng audio o MP3 mula sa phone</label>
+<input id="audio-file" type="file" accept="audio/*,.mp3">
 
-  <audio id="music-player" controls
-    style="display:none;width:100%;margin-top:14px"></audio>
+<audio id="music-player" controls style="display:none;width:100%;margin-top:14px"></audio>
 
-  <button type="button" id="download-audio" disabled>
-    ⬇️ I-download ang Audio
-  </button>
-
-  <p id="music-status" aria-live="polite">
-    Handa na. Puwede kang magsulat ng lyrics o pumili ng audio.
-  </p>
+<button type="button" id="download-audio" disabled>⬇️ I-download ang Audio</button>
+<p id="music-status" aria-live="polite">Handa na. Puwede kang magsulat ng lyrics o pumili ng audio.</p>
 </section>
 
 <section class="card">
@@ -108,7 +99,7 @@ a{color:#c5bdff}
 
 <section class="card">
 <h3>Paalala</h3>
-<small>Gumagamit ito ng pampublikong Hugging Face demo. Maaaring may pila, limitasyon, o outage. Kung harangin ng browser ang API request, maaaring kailangan ng backend/proxy.</small>
+<small>Gumagamit ito ng pampublikong Hugging Face demo. Maaaring may pila, limitasyon, o outage. Maaaring kailangan ng backend/proxy kung harangin ng browser ang API request.</small>
 </section>
 
 <footer style="text-align:center;color:#aaa;padding:15px">
@@ -129,6 +120,100 @@ function say(message) {
   $('status').textContent = message;
 }
 
+/* LYRICS DOWNLOAD */
+const songTitle = $('song-title');
+const lyricsBox = $('lyrics');
+const saveLyrics = $('save-lyrics');
+const audioFile = $('audio-file');
+const musicPlayer = $('music-player');
+const downloadAudio = $('download-audio');
+const musicStatus = $('music-status');
+
+let selectedAudioUrl = '';
+
+saveLyrics.addEventListener('click', () => {
+  const title = songTitle.value.trim() || 'Aking Kanta';
+  const lyrics = lyricsBox.value.trim();
+
+  if (!lyrics) {
+    musicStatus.textContent = 'Ilagay muna ang lyrics ng kanta.';
+    return;
+  }
+
+  const safeTitle = title.replace(/[\\/:*?"<>|]/g, '_');
+  const content = '\uFEFF' + title + '\r\n\r\n' + lyrics;
+  const blob = new Blob([content], {
+    type: 'text/plain;charset=utf-8'
+  });
+
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement('a');
+
+  link.href = url;
+  link.download = safeTitle + '.txt';
+  link.style.display = 'none';
+  link.setAttribute('target', '_self');
+
+  document.body.appendChild(link);
+  link.click();
+  link.remove();
+
+  musicStatus.textContent =
+    'Sinimulan ang pag-download ng ' + safeTitle +
+    '.txt. Tingnan ang Downloads ng phone mo.';
+
+  setTimeout(() => URL.revokeObjectURL(url), 60000);
+});
+
+/* AUDIO PLAYER AND DOWNLOAD */
+audioFile.addEventListener('change', () => {
+  const file = audioFile.files[0];
+
+  if (!file) {
+    downloadAudio.disabled = true;
+    return;
+  }
+
+  if (selectedAudioUrl) {
+    URL.revokeObjectURL(selectedAudioUrl);
+  }
+
+  selectedAudioUrl = URL.createObjectURL(file);
+  musicPlayer.src = selectedAudioUrl;
+  musicPlayer.style.display = 'block';
+  musicPlayer.load();
+
+  downloadAudio.disabled = false;
+  musicStatus.textContent =
+    'Napili ang ' + file.name + '. Pindutin ang Play para makinig.';
+});
+
+downloadAudio.addEventListener('click', () => {
+  const file = audioFile.files[0];
+
+  if (!file) {
+    musicStatus.textContent = 'Pumili muna ng audio file.';
+    return;
+  }
+
+  const url = URL.createObjectURL(file);
+  const link = document.createElement('a');
+
+  link.href = url;
+  link.download = file.name || 'aking-kanta.mp3';
+  link.style.display = 'none';
+
+  document.body.appendChild(link);
+  link.click();
+  link.remove();
+
+  musicStatus.textContent =
+    'Sinimulan ang pag-download. Tingnan ang Downloads ng phone mo.';
+
+  setTimeout(() => URL.revokeObjectURL(url), 60000);
+});
+
+/* IMAGE PREVIEW */
 $('image').addEventListener('change', () => {
   const file = $('image').files[0];
 
@@ -161,14 +246,8 @@ function findVideo(value) {
   }
 
   if (typeof value === 'object') {
-    if (typeof value.url === 'string' && value.url) {
-      return value;
-    }
-
-    if (typeof value.path === 'string' && value.path) {
-      return value;
-    }
-
+    if (typeof value.url === 'string' && value.url) return value;
+    if (typeof value.path === 'string' && value.path) return value;
     if (value.video) return findVideo(value.video);
     if (value.data) return findVideo(value.data);
   }
@@ -216,39 +295,28 @@ async function generate() {
     const form = new FormData();
     form.append('files', file, file.name);
 
-    const uploadResponse = await fetch(
-      BASE + '/gradio_api/upload',
-      {
-        method: 'POST',
-        body: form
-      }
-    );
+    const uploadResponse = await fetch(BASE + '/gradio_api/upload', {
+      method: 'POST',
+      body: form
+    });
 
     if (!uploadResponse.ok) {
-      throw new Error(
-        'Hindi ma-upload ang larawan. HTTP ' +
-        uploadResponse.status
-      );
+      throw new Error('Hindi ma-upload ang larawan. HTTP ' + uploadResponse.status);
     }
 
     const uploaded = await uploadResponse.json();
-
-    const filePath = Array.isArray(uploaded)
-      ? uploaded[0]
-      : uploaded.path;
+    const filePath = Array.isArray(uploaded) ? uploaded[0] : uploaded.path;
 
     if (!filePath) {
       throw new Error('Walang file path na ibinalik ng upload API.');
     }
 
-    const prompt =
-      idea +
+    const prompt = idea +
       '. Style: ' + $('style').value +
       '. Cinematic motion, smooth natural movement, realistic lighting, detailed environment, stable camera, high visual quality.';
 
     say('2/4 — Ipinapadala ang request sa Wan 2.2...');
 
-    // Dapat tumugma ang pagkakasunod-sunod sa Gradio function.
     const payload = {
       data: [
         {
@@ -257,9 +325,7 @@ async function generate() {
           orig_name: file.name,
           mime_type: file.type || 'image/png',
           size: file.size,
-          meta: {
-            _type: 'gradio.FileData'
-          }
+          meta: {_type: 'gradio.FileData'}
         },
         prompt,
         Number($('steps').value),
@@ -272,22 +338,14 @@ async function generate() {
       ]
     };
 
-    const response = await fetch(
-      BASE + '/gradio_api/call/generate_video',
-      {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(payload)
-      }
-    );
+    const response = await fetch(BASE + '/gradio_api/call/generate_video', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify(payload)
+    });
 
     if (!response.ok) {
-      throw new Error(
-        'Hindi tinanggap ng Wan API. HTTP ' +
-        response.status
-      );
+      throw new Error('Hindi tinanggap ng Wan API. HTTP ' + response.status);
     }
 
     const start = await response.json();
@@ -304,15 +362,11 @@ async function generate() {
     );
 
     if (!resultResponse.ok) {
-      throw new Error(
-        'Hindi makuha ang resulta. HTTP ' +
-        resultResponse.status
-      );
+      throw new Error('Hindi makuha ang resulta. HTTP ' + resultResponse.status);
     }
 
     const text = await resultResponse.text();
     const lines = text.split(/\r?\n/);
-
     let result = null;
     let apiError = null;
 
@@ -320,15 +374,10 @@ async function generate() {
       if (!lines[i].startsWith('event:')) continue;
 
       const eventName = lines[i].slice(6).trim();
-
-      const dataLine = lines
-        .slice(i + 1)
-        .find(line => line.startsWith('data:'));
+      const dataLine = lines.slice(i + 1).find(line => line.startsWith('data:'));
 
       if (eventName === 'error') {
-        apiError = dataLine
-          ? dataLine.slice(5).trim()
-          : 'Nagkaroon ng error ang Wan demo.';
+        apiError = dataLine ? dataLine.slice(5).trim() : 'Nagkaroon ng error ang Wan demo.';
       }
 
       if (eventName === 'complete' && dataLine) {
@@ -340,21 +389,13 @@ async function generate() {
       }
     }
 
-    if (apiError) {
-      throw new Error(apiError);
-    }
+    if (apiError) throw new Error(apiError);
 
     const outputFile = findVideo(result);
-
-    if (!outputFile) {
-      throw new Error('Walang video file sa resulta ng API.');
-    }
+    if (!outputFile) throw new Error('Walang video file sa resulta ng API.');
 
     const videoUrl = makeVideoUrl(outputFile);
-
-    if (!videoUrl) {
-      throw new Error('Walang video URL sa resulta.');
-    }
+    if (!videoUrl) throw new Error('Walang video URL sa resulta.');
 
     say('4/4 — Inihahanda ang video...');
 
@@ -367,10 +408,7 @@ async function generate() {
 
     say('Tapos na! Pindutin ang play para panoorin ang video.');
 
-    video.scrollIntoView({
-      behavior: 'smooth',
-      block: 'center'
-    });
+    video.scrollIntoView({behavior: 'smooth', block: 'center'});
 
   } catch (error) {
     let message = String(error.message || error);
@@ -380,116 +418,17 @@ async function generate() {
       message.includes('NetworkError') ||
       message.includes('Load failed')
     ) {
-      message =
-        'Hindi makakonekta sa Hugging Face. ' +
-        'Maaaring CORS restriction, problema sa internet, ' +
-        'o hindi available ang demo. Kung CORS ang dahilan, ' +
-        'kailangan ng backend/proxy.';
+      message = 'Hindi makakonekta sa Hugging Face. Maaaring CORS restriction, problema sa internet, o hindi available ang demo.';
     }
 
-    say(
-      'Hindi natuloy: ' + message +
-      '\nSubukan muli mamaya kung puno o offline ang public demo.'
-    );
+    say('Hindi natuloy: ' + message +
+      '\nSubukan muli mamaya kung puno o offline ang public demo.');
 
   } finally {
     button.disabled = false;
     button.textContent = '🎥 Gumawa ng AI Video';
   }
 }
-const songTitle = document.getElementById('song-title');
-const lyricsBox = document.getElementById('lyrics');
-const saveLyrics = document.getElementById('save-lyrics');
-const audioFile = document.getElementById('audio-file');
-const musicPlayer = document.getElementById('music-player');
-const downloadAudio = document.getElementById('download-audio');
-const musicStatus = document.getElementById('music-status');
-
-let selectedAudioUrl = '';
-let selectedAudioName = '';
-
-saveLyrics.addEventListener('click', () => {
-  const title = songTitle.value.trim() || 'Aking Kanta';
-  const lyrics = lyricsBox.value.trim();
-
-  if (!lyrics) {
-    musicStatus.textContent = 'Ilagay muna ang lyrics ng kanta.';
-    return;
-  }
-
-  const content = title + '\n\n' + lyrics;
-  const blob = new Blob([content], {
-    type: 'text/plain;charset=utf-8'
-  });
-
-  const url = URL.createObjectURL(blob);
-  const link = document.createElement('a');
-
-  link.href = url;
-  link.download = title.replace(/[\\/:*?"<>|]/g, '_') + '.txt';
-  document.body.appendChild(link);
-  link.click();
-  link.remove();
-
-  setTimeout(() => URL.revokeObjectURL(url), 1000);
-  musicStatus.textContent = 'Na-download na ang lyrics!';
-});
-
-audioFile.addEventListener('change', () => {
-  const file = audioFile.files[0];
-
-  if (!file) return;
-
-  if (selectedAudioUrl) {
-    URL.revokeObjectURL(selectedAudioUrl);
-  }
-
-  selectedAudioUrl = URL.createObjectURL(file);
-  selectedAudioName = file.name;
-
-  musicPlayer.src = selectedAudioUrl;
-  musicPlayer.style.display = 'block';
-  musicPlayer.load();
-
-  downloadAudio.disabled = false;
-  musicStatus.textContent =
-    'Napili ang ' + file.name + '. Pindutin ang Play para makinig.';
-});
-
-downloadAudio.addEventListener('click', async () => {
-  const file = audioFile.files[0];
-
-  if (!file) {
-    musicStatus.textContent = 'Pumili muna ng audio file.';
-    return;
-  }
-
-  try {
-    const blob = new Blob([file], {
-      type: file.type || 'audio/mpeg'
-    });
-
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement('a');
-
-    link.href = url;
-    link.download = file.name || 'aking-kanta.mp3';
-    link.style.display = 'none';
-
-    document.body.appendChild(link);
-    link.click();
-    link.remove();
-
-    musicStatus.textContent =
-      'Sinimulan ang pag-download. Tingnan ang Downloads ng phone mo.';
-
-    setTimeout(() => URL.revokeObjectURL(url), 60000);
-  } catch (error) {
-    musicStatus.textContent =
-      'Hindi ma-download ang audio. Subukan muli sa browser.';
-  }
-});
-
 </script>
 </body>
 </html>
