@@ -11,18 +11,28 @@ body{margin:0;padding:16px;background:#10111c;color:#fff;font-family:Arial,sans-
 main{max-width:640px;margin:auto}
 header{text-align:center;padding:18px 0}
 h1{color:#a99cff}
+h2{color:#c9c1ff}
 p{color:#d0cede;line-height:1.5}
 .card{background:#1d1e2d;padding:18px;border-radius:16px;margin:14px 0}
 label{display:block;font-weight:bold;margin:15px 0 8px}
-textarea,select,input[type=file],input[type=text]{width:100%;padding:13px;border-radius:10px;border:1px solid #414258;background:#11121d;color:white;font-size:16px}
-textarea{min-height:105px}
-button{width:100%;padding:14px;margin-top:12px;border:0;border-radius:10px;background:#8170ff;color:white;font-size:16px;font-weight:bold}
+textarea,select,input[type=file],input[type=text]{
+ width:100%;padding:13px;border-radius:10px;
+ border:1px solid #414258;background:#11121d;
+ color:white;font-size:16px
+}
+textarea{min-height:130px;resize:vertical}
+button{width:100%;padding:14px;margin-top:12px;border:0;
+ border-radius:10px;background:#8170ff;color:white;
+ font-size:16px;font-weight:bold;cursor:pointer}
 button:disabled{opacity:.55}
+button.secondary{background:#39374f}
 #preview,#video{display:none;width:100%;margin-top:12px;border-radius:10px}
-#status{white-space:pre-wrap;overflow-wrap:anywhere;background:#11121d;padding:12px;border-radius:10px;margin-top:12px;color:#d7d2ff}
-#music-status{white-space:pre-wrap;overflow-wrap:anywhere}
-small{color:#aaa}
+#status,#music-status{white-space:pre-wrap;overflow-wrap:anywhere;
+ background:#11121d;padding:12px;border-radius:10px;
+ margin-top:12px;color:#d7d2ff;line-height:1.5}
+small{color:#aaa;line-height:1.5}
 a{color:#c5bdff}
+footer{text-align:center;color:#aaa;padding:15px}
 </style>
 </head>
 <body>
@@ -30,133 +40,83 @@ a{color:#c5bdff}
 <header>
 <div style="font-size:42px">🎬</div>
 <h1>My AI Video Creator</h1>
-<p>Gumawa ng video mula sa larawan gamit ang Wan 2.2.</p>
+<p>Gumawa ng video mula sa larawan at gumawa ng lyrics ng sarili mong kanta.</p>
 </header>
 
 <section class="card" id="music-studio">
 <h2>🎵 AI Music Studio</h2>
-<p>Isulat, ayusin, at i-download ang lyrics ng sarili mong kanta.</p>
+<p>Gumawa ng lyrics draft, mag-edit, kumopya, at mag-download ng sarili mong kanta.</p>
 
 <label for="song-title">Pamagat ng kanta</label>
-<input id="song-title" type="text" placeholder="Halimbawa: Sa Huli, Ako ang Naiwan">
+<input id="song-title" type="text"
+placeholder="Halimbawa: Sa Huli, Ako ang Naiwan">
+
+<label for="genre">🎼 Genre ng kanta</label>
+<select id="genre">
+<option>OPM Ballad</option>
+<option>Acoustic</option>
+<option>Pop</option>
+<option>Rock</option>
+<option>Folk</option>
+<option>Rap</option>
+<option>Country</option>
+<option>Inspirational</option>
+</select>
+
+<label for="mood">💜 Damdamin</label>
+<select id="mood">
+<option value="Malungkot">Malungkot / Hugot</option>
+<option value="Romantic">Romantic</option>
+<option value="Inspirational">Nakaka-inspire</option>
+<option value="Masaya">Masaya</option>
+<option value="Makabayan">Makabayan</option>
+<option value="Pag-asa">Pag-asa sa buhay</option>
+</select>
+
+<label for="language">🗣️ Wika</label>
+<select id="language">
+<option value="Tagalog">Tagalog</option>
+<option value="Filipino">Filipino</option>
+<option value="English">English</option>
+<option value="Taglish">Taglish</option>
+</select>
+
+<label for="length">📏 Haba ng lyrics</label>
+<select id="length">
+<option value="short">Maikli</option>
+<option value="medium" selected>Katamtaman</option>
+<option value="long">Mahaba</option>
+</select>
+
+<label for="custom-idea">✍️ Paksa o ideya ng kanta</label>
+<textarea id="custom-idea"
+placeholder="Halimbawa: tungkol sa taong iniwan pero patuloy na lumalaban sa buhay."></textarea>
+
+<button type="button" id="create-lyrics">✍️ Create Lyrics</button>
+<button type="button" id="regenerate-lyrics" class="secondary">🔄 Regenerate Lyrics</button>
 
 <label for="lyrics">Lyrics ng kanta</label>
-<textarea id="lyrics" placeholder="Ilagay dito ang lyrics ng kanta mo..."></textarea>
+<textarea id="lyrics" placeholder="Dito lalabas ang lyrics draft. Maaari mo ring ilagay ang sarili mong lyrics."></textarea>
 
-<button type="button" id="save-lyrics">💾 I-download ang Lyrics (.txt)</button>
+<button type="button" id="copy-lyrics" class="secondary">📋 Copy Lyrics</button>
+<button type="button" id="save-lyrics">💾 Download Lyrics (.txt)</button>
 
-<label for="audio-file">Pumili ng audio o MP3 mula sa phone</label>
+<label for="audio-file">🎧 Pumili ng audio o MP3 mula sa phone</label>
 <input id="audio-file" type="file" accept="audio/*,.mp3">
 
-<audio id="music-player" controls style="display:none;width:100%;margin-top:14px"></audio>
+<audio id="music-player" controls
+style="display:none;width:100%;margin-top:14px"></audio>
 
 <button type="button" id="download-audio" disabled>⬇️ I-download ang Audio</button>
-<p id="music-status" aria-live="polite">Handa na. Puwede kang magsulat ng lyrics o pumili ng audio.</p>
-</section>
-
-
-<section class="card" id="music-studio">
-<h2>🎵 AI Music Studio</h2>
-<p>Gumawa at mag-edit ng lyrics ng sarili mong kanta.</p>
-
-<label for="song-title">Pamagat ng kanta</label>
-<input id="song-title" type="text"
-placeholder="Halimbawa: Sa Huli, Ako ang Naiwan">
-
-<label for="genre">Genre</label>
-<select id="genre">
-<option>Acoustic</option>
-<option>Pop</option>
-<option>Rock</option>
-<option>OPM Ballad</option>
-<option>Rap</option>
-<option>Folk</option>
-</select>
-
-<label for="mood">Mood</label>
-<select id="mood">
-<option>Malungkot</option>
-<option>Romantic</option>
-<option>Inspirational</option>
-<option>Masaya</option>
-<option>Makabayan</option>
-</select>
-
-<label for="lyrics">Lyrics ng kanta</label>
-<textarea id="lyrics"
-placeholder="Dito lalabas o ilalagay ang lyrics mo..."></textarea>
-
-<button type="button" id="create-lyrics">✍️ Create Lyrics</button>
-<button type="button" id="regenerate-lyrics">🔄 Regenerate Lyrics</button>
-<button type="button" id="copy-lyrics">📋 Copy Lyrics</button>
-<button type="button" id="save-lyrics">💾 Download Lyrics (.txt)</button>
-
-<label for="audio-file">Pumili ng audio o MP3 mula sa phone</label>
-<input id="audio-file" type="file" accept="audio/*,.mp3">
-
-<audio id="music-player" controls
-style="display:none;width:100%;margin-top:14px"></audio>
-
-<button type="button" id="download-audio" disabled>
-⬇️ I-download ang Audio
-</button>
 
 <p id="music-status" aria-live="polite">
-Handa na. Puwede kang magsulat o gumawa ng draft ng lyrics.
+Handa na. Gumawa ng lyrics draft o ilagay ang sarili mong lyrics.
 </p>
+
+<small>Ang lyrics generator na ito ay gumagamit ng mga lokal na template. Hindi pa ito konektado sa totoong AI lyrics API. Ang pag-download ng audio ay para sa audio file na ikaw mismo ang pumili.</small>
 </section>
 
-<section class="card" id="music-studio">
-<h2>🎵 AI Music Studio</h2>
-<p>Gumawa at mag-edit ng lyrics ng sarili mong kanta.</p>
-
-<label for="song-title">Pamagat ng kanta</label>
-<input id="song-title" type="text"
-placeholder="Halimbawa: Sa Huli, Ako ang Naiwan">
-
-<label for="genre">Genre</label>
-<select id="genre">
-<option>Acoustic</option>
-<option>Pop</option>
-<option>Rock</option>
-<option>OPM Ballad</option>
-<option>Rap</option>
-<option>Folk</option>
-</select>
-
-<label for="mood">Mood</label>
-<select id="mood">
-<option>Malungkot</option>
-<option>Romantic</option>
-<option>Inspirational</option>
-<option>Masaya</option>
-<option>Makabayan</option>
-</select>
-
-<label for="lyrics">Lyrics ng kanta</label>
-<textarea id="lyrics"
-placeholder="Dito lalabas o ilalagay ang lyrics mo..."></textarea>
-
-<button type="button" id="create-lyrics">✍️ Create Lyrics</button>
-<button type="button" id="regenerate-lyrics">🔄 Regenerate Lyrics</button>
-<button type="button" id="copy-lyrics">📋 Copy Lyrics</button>
-<button type="button" id="save-lyrics">💾 Download Lyrics (.txt)</button>
-
-<label for="audio-file">Pumili ng audio o MP3 mula sa phone</label>
-<input id="audio-file" type="file" accept="audio/*,.mp3">
-
-<audio id="music-player" controls
-style="display:none;width:100%;margin-top:14px"></audio>
-
-<button type="button" id="download-audio" disabled>
-⬇️ I-download ang Audio
-</button>
-
-<p id="music-status" aria-live="polite">
-Handa na. Puwede kang magsulat o gumawa ng draft ng lyrics.
-</p>
-</section>
-
+<section class="card">
 <h2>1. Pumili ng larawan</h2>
 <input id="image" type="file" accept="image/png,image/jpeg,image/webp">
 <img id="preview" alt="Preview ng larawan">
@@ -201,12 +161,10 @@ Handa na. Puwede kang magsulat o gumawa ng draft ng lyrics.
 
 <section class="card">
 <h3>Paalala</h3>
-<small>Gumagamit ito ng pampublikong Hugging Face demo. Maaaring may pila, limitasyon, o outage. Maaaring kailangan ng backend/proxy kung harangin ng browser ang API request.</small>
+<small>Gumagamit ang video generator ng pampublikong Hugging Face demo. Maaaring may pila, limitasyon, o outage. Hindi garantisadong laging gagana ang public API.</small>
 </section>
 
-<footer style="text-align:center;color:#aaa;padding:15px">
-My AI Video Creator © 2026
-</footer>
+<footer>My AI Video Creator © 2026</footer>
 </main>
 
 <script>
@@ -217,102 +175,220 @@ const BASE = 'https://zerogpu-aoti-wan2-2-fp8da-aoti-faster.hf.space';
 const NEG = '色调艳丽, 过曝, 静态, 细节模糊不清, 字幕, 风格, 作品, 画作, 画面, 静止, 整体发灰, 最差质量, 低质量, JPEG压缩残留, 丑陋的, 残缺的, 多余的手指, 画得不好的手部, 画得不好的脸部, 畸形的, 毁容的, 形态畸形的肢体, 手指融合, 静止不动的画面, 杂乱的背景, 三条腿, 背景人很多, 倒着走';
 
 const $ = id => document.getElementById(id);
+const say = message => $('status').textContent = message;
 
-function say(message) {
-  $('status').textContent = message;
-}
-
-/* LYRICS DOWNLOAD */
 const songTitle = $('song-title');
 const lyricsBox = $('lyrics');
-const saveLyrics = $('save-lyrics');
+const musicStatus = $('music-status');
 const audioFile = $('audio-file');
 const musicPlayer = $('music-player');
 const downloadAudio = $('download-audio');
-const musicStatus = $('music-status');
 
 let selectedAudioUrl = '';
+let draftNumber = 0;
 
-saveLyrics.addEventListener('click', () => {
+const templates = {
+  Malungkot: [
+    ['Sa bawat gabi, alaala mo ang kasama',
+     'Mga pangakong naiwan, dala ko pa hanggang umaga',
+     'Sa huli, ako ang naiwan',
+     'Naghihintay sa pag-ibig na hindi na babalik kailanman'],
+    ['Tahimik ang mundo, ngunit maingay ang damdamin',
+     'Hinahanap ang sagot sa mga tanong na bitin',
+     'Kung tapos na ang lahat, bakit masakit pa rin?',
+     'Puso kong nagmamahal, kailan ka gagaling?']
+  ],
+  Romantic: [
+    ['Sa bawat umaga, ikaw ang dahilan',
+     'Ngiti mong kay tamis ang aking tahanan',
+     'Kahit magbago ang ikot ng mundo',
+     'Pipiliin pa rin ang makasama ka rito'],
+    ['Hawak ang pangarap, sabay nating tatahakin',
+     'Bawat pagsubok ay sabay nating haharapin',
+     'Kung may isang bagay na nais kong sabihin',
+     'Ikaw ang bukas na gusto kong salubungin']
+  ],
+  Inspirational: [
+    ['Kahit mahirap, patuloy lalaban',
+     'Bawat pagsubok ay may katapusan',
+     'Huwag bibitaw sa pangarap na tangan',
+     'May bagong umaga sa bawat hakbang'],
+    ['Kung minsan madapa, bumangon muli',
+     'Hindi pa huli para mangarap muli',
+     'Sa bawat pagsubok, tibayan ang loob',
+     'Pag-asa ang ilaw sa landas na tatahakin']
+  ],
+  Masaya: [
+    ['Tara na, sabay nating awitin',
+     'Mga problema muna ay kalimutan natin',
+     'Ngiti at saya ang baon sa daan',
+     'Bawat sandali ay ating ipagdiwang'],
+    ['Buksan ang bintana, salubungin ang araw',
+     'Sabay sa tugtog, hayaang gumalaw',
+     'Kaibigan, halina at makisaya',
+     'Ngayon ang araw para ngumiti at tumawa']
+  ],
+  Makabayan: [
+    ['Sa ating bayan, pag-asa ay buhay',
+     'Sama-samang kikilos para sa tagumpay',
+     'Boses ng tao ay dapat pakinggan',
+     'Kinabukasan natin ay pangalagaan'],
+    ['Sa bukid at lungsod, pangarap ay iisa',
+     'Bawat manggagawa ay may dangal at pag-asa',
+     'Sa pagkakaisa, may lakas ang bayan',
+     'Isang bukas na patas ang ating hangad makamtan']
+  ],
+  'Pag-asa': [
+    ['Kahit madilim, may liwanag sa dulo',
+     'Kahit mabigat, kakayanin ko ito',
+     'Sa bawat luha, may bagong simula',
+     'Bukas ay may pag-asang naghihintay pa'],
+    ['Hindi habang-buhay ang unos sa langit',
+     'Darating din ang araw na gagaan ang dibdib',
+     'Dahan-dahan lang, huwag mawalan ng pag-asa',
+     'May bagong umagang naghihintay sa bawat isa']
+  ]
+};
+
+function makeLyrics() {
+  const title = songTitle.value.trim() || 'Aking Kanta';
+  const mood = $('mood').value;
+  const genre = $('genre').value;
+  const language = $('language').value;
+  const length = $('length').value;
+  const idea = $('custom-idea').value.trim();
+
+  const choices = templates[mood] || templates.Malungkot;
+  const verse = choices[draftNumber % choices.length];
+  draftNumber++;
+
+  let chorus = verse[2] + '\n' + verse[3];
+  let verseOne = verse[0] + '\n' + verse[1];
+
+  if (language === 'English') {
+    verseOne = 'Every new day brings another chance\n' +
+      'I keep moving forward, learning how to dance';
+    chorus = 'I will keep on going, I will find my way\n' +
+      'Holding on to hope for a brighter day';
+  } else if (language === 'Taglish') {
+    verseOne += '\nThrough the hardest nights, I still believe';
+    chorus += '\nWith a little hope, I can still achieve';
+  }
+
+  let result = title + '\n';
+  result += 'Genre: ' + genre + ' | Mood: ' + mood + '\n';
+  if (idea) result += 'Paksa: ' + idea + '\n';
+  result += '\n[Verse 1]\n' + verseOne;
+  result += '\n\n[Chorus]\n' + chorus;
+
+  if (length === 'medium' || length === 'long') {
+    result += '\n\n[Verse 2]\n';
+    result += language === 'English'
+      ? 'I may stumble, but I will rise again\nTomorrow brings a chance to start again'
+      : 'Sa bawat araw, may bagong aral\nSa puso at isip, pag-asa ang tanglaw';
+    result += '\n\n[Chorus]\n' + chorus;
+  }
+
+  if (length === 'long') {
+    result += '\n\n[Bridge]\n';
+    result += language === 'English'
+      ? 'Every step I take will make me strong\nI will find the place where I belong'
+      : 'Kahit mahirap, hindi susuko\nHaharapin ang bukas nang buong puso';
+    result += '\n\n[Final Chorus]\n' + chorus;
+  }
+
+  lyricsBox.value = result;
+  musicStatus.textContent =
+    'Nagawa ang lyrics draft. Maaari mo itong i-edit. Hindi pa ito galing sa AI API.';
+}
+
+$('create-lyrics').addEventListener('click', makeLyrics);
+$('regenerate-lyrics').addEventListener('click', makeLyrics);
+
+$('copy-lyrics').addEventListener('click', async () => {
+  if (!lyricsBox.value.trim()) {
+    musicStatus.textContent = 'Gumawa o maglagay muna ng lyrics.';
+    return;
+  }
+
+  try {
+    await navigator.clipboard.writeText(lyricsBox.value);
+    musicStatus.textContent = 'Nakopya ang lyrics.';
+  } catch (error) {
+    lyricsBox.focus();
+    lyricsBox.select();
+    musicStatus.textContent =
+      'Nakapili ang lyrics. Pindutin nang matagal ang text at piliin ang Copy.';
+  }
+});
+
+$('save-lyrics').addEventListener('click', () => {
   const title = songTitle.value.trim() || 'Aking Kanta';
   const lyrics = lyricsBox.value.trim();
 
   if (!lyrics) {
-    musicStatus.textContent = 'Ilagay muna ang lyrics ng kanta.';
+    musicStatus.textContent = 'Ilagay o gumawa muna ng lyrics.';
     return;
   }
 
   const safeTitle = title.replace(/[\\/:*?"<>|]/g, '_');
-  const content = '\uFEFF' + title + '\r\n\r\n' + lyrics;
-  const blob = new Blob([content], {
+  const blob = new Blob(['\uFEFF' + title + '\n\n' + lyrics], {
     type: 'text/plain;charset=utf-8'
   });
 
   const url = URL.createObjectURL(blob);
   const link = document.createElement('a');
-
   link.href = url;
   link.download = safeTitle + '.txt';
-  link.style.display = 'none';
-  link.setAttribute('target', '_self');
-
   document.body.appendChild(link);
   link.click();
   link.remove();
 
   musicStatus.textContent =
-    'Sinimulan ang pag-download ng ' + safeTitle +
-    '.txt. Tingnan ang Downloads ng phone mo.';
+    'Sinubukang i-download ang ' + safeTitle +
+    '.txt. Tingnan ang Downloads sa phone mo.';
 
   setTimeout(() => URL.revokeObjectURL(url), 60000);
 });
 
-/* AUDIO PLAYER AND DOWNLOAD */
 audioFile.addEventListener('change', () => {
   const file = audioFile.files[0];
 
+  if (selectedAudioUrl) URL.revokeObjectURL(selectedAudioUrl);
+  selectedAudioUrl = '';
+
   if (!file) {
     downloadAudio.disabled = true;
+    musicPlayer.style.display = 'none';
     return;
-  }
-
-  if (selectedAudioUrl) {
-    URL.revokeObjectURL(selectedAudioUrl);
   }
 
   selectedAudioUrl = URL.createObjectURL(file);
   musicPlayer.src = selectedAudioUrl;
   musicPlayer.style.display = 'block';
   musicPlayer.load();
-
   downloadAudio.disabled = false;
+
   musicStatus.textContent =
     'Napili ang ' + file.name + '. Pindutin ang Play para makinig.';
 });
 
 downloadAudio.addEventListener('click', () => {
   const file = audioFile.files[0];
-
   if (!file) {
     musicStatus.textContent = 'Pumili muna ng audio file.';
     return;
   }
 
-  const url = URL.createObjectURL(file);
   const link = document.createElement('a');
-
-  link.href = url;
+  link.href = selectedAudioUrl;
   link.download = file.name || 'aking-kanta.mp3';
-  link.style.display = 'none';
-
   document.body.appendChild(link);
   link.click();
   link.remove();
 
   musicStatus.textContent =
-    'Sinimulan ang pag-download. Tingnan ang Downloads ng phone mo.';
-
-  setTimeout(() => URL.revokeObjectURL(url), 60000);
+    'Sinubukang i-download ang audio. Tingnan ang Downloads ng phone mo.';
 });
 
 /* IMAGE PREVIEW */
@@ -334,6 +410,7 @@ $('image').addEventListener('change', () => {
   $('preview').style.display = 'block';
 });
 
+/* VIDEO GENERATOR */
 $('go').addEventListener('click', generate);
 
 function findVideo(value) {
@@ -479,7 +556,9 @@ async function generate() {
       const dataLine = lines.slice(i + 1).find(line => line.startsWith('data:'));
 
       if (eventName === 'error') {
-        apiError = dataLine ? dataLine.slice(5).trim() : 'Nagkaroon ng error ang Wan demo.';
+        apiError = dataLine
+          ? dataLine.slice(5).trim()
+          : 'Nagkaroon ng error ang Wan demo.';
       }
 
       if (eventName === 'complete' && dataLine) {
@@ -509,7 +588,6 @@ async function generate() {
     download.style.display = 'inline-block';
 
     say('Tapos na! Pindutin ang play para panoorin ang video.');
-
     video.scrollIntoView({behavior: 'smooth', block: 'center'});
 
   } catch (error) {
