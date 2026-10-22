@@ -54,7 +54,109 @@ a{color:#c5bdff}
 <p id="music-status" aria-live="polite">Handa na. Puwede kang magsulat ng lyrics o pumili ng audio.</p>
 </section>
 
-<section class="card">
+
+<section class="card" id="music-studio">
+<h2>🎵 AI Music Studio</h2>
+<p>Gumawa at mag-edit ng lyrics ng sarili mong kanta.</p>
+
+<label for="song-title">Pamagat ng kanta</label>
+<input id="song-title" type="text"
+placeholder="Halimbawa: Sa Huli, Ako ang Naiwan">
+
+<label for="genre">Genre</label>
+<select id="genre">
+<option>Acoustic</option>
+<option>Pop</option>
+<option>Rock</option>
+<option>OPM Ballad</option>
+<option>Rap</option>
+<option>Folk</option>
+</select>
+
+<label for="mood">Mood</label>
+<select id="mood">
+<option>Malungkot</option>
+<option>Romantic</option>
+<option>Inspirational</option>
+<option>Masaya</option>
+<option>Makabayan</option>
+</select>
+
+<label for="lyrics">Lyrics ng kanta</label>
+<textarea id="lyrics"
+placeholder="Dito lalabas o ilalagay ang lyrics mo..."></textarea>
+
+<button type="button" id="create-lyrics">✍️ Create Lyrics</button>
+<button type="button" id="regenerate-lyrics">🔄 Regenerate Lyrics</button>
+<button type="button" id="copy-lyrics">📋 Copy Lyrics</button>
+<button type="button" id="save-lyrics">💾 Download Lyrics (.txt)</button>
+
+<label for="audio-file">Pumili ng audio o MP3 mula sa phone</label>
+<input id="audio-file" type="file" accept="audio/*,.mp3">
+
+<audio id="music-player" controls
+style="display:none;width:100%;margin-top:14px"></audio>
+
+<button type="button" id="download-audio" disabled>
+⬇️ I-download ang Audio
+</button>
+
+<p id="music-status" aria-live="polite">
+Handa na. Puwede kang magsulat o gumawa ng draft ng lyrics.
+</p>
+</section>
+
+<section class="card" id="music-studio">
+<h2>🎵 AI Music Studio</h2>
+<p>Gumawa at mag-edit ng lyrics ng sarili mong kanta.</p>
+
+<label for="song-title">Pamagat ng kanta</label>
+<input id="song-title" type="text"
+placeholder="Halimbawa: Sa Huli, Ako ang Naiwan">
+
+<label for="genre">Genre</label>
+<select id="genre">
+<option>Acoustic</option>
+<option>Pop</option>
+<option>Rock</option>
+<option>OPM Ballad</option>
+<option>Rap</option>
+<option>Folk</option>
+</select>
+
+<label for="mood">Mood</label>
+<select id="mood">
+<option>Malungkot</option>
+<option>Romantic</option>
+<option>Inspirational</option>
+<option>Masaya</option>
+<option>Makabayan</option>
+</select>
+
+<label for="lyrics">Lyrics ng kanta</label>
+<textarea id="lyrics"
+placeholder="Dito lalabas o ilalagay ang lyrics mo..."></textarea>
+
+<button type="button" id="create-lyrics">✍️ Create Lyrics</button>
+<button type="button" id="regenerate-lyrics">🔄 Regenerate Lyrics</button>
+<button type="button" id="copy-lyrics">📋 Copy Lyrics</button>
+<button type="button" id="save-lyrics">💾 Download Lyrics (.txt)</button>
+
+<label for="audio-file">Pumili ng audio o MP3 mula sa phone</label>
+<input id="audio-file" type="file" accept="audio/*,.mp3">
+
+<audio id="music-player" controls
+style="display:none;width:100%;margin-top:14px"></audio>
+
+<button type="button" id="download-audio" disabled>
+⬇️ I-download ang Audio
+</button>
+
+<p id="music-status" aria-live="polite">
+Handa na. Puwede kang magsulat o gumawa ng draft ng lyrics.
+</p>
+</section>
+
 <h2>1. Pumili ng larawan</h2>
 <input id="image" type="file" accept="image/png,image/jpeg,image/webp">
 <img id="preview" alt="Preview ng larawan">
