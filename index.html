@@ -45,7 +45,7 @@ footer{text-align:center;color:#aaa;padding:15px}
 
 <section class="card" id="music-studio">
 <h2>🎵 AI Music Studio</h2>
-<p>Gumawa ng lyrics draft, mag-edit, kumopya, at mag-download ng sarili mong kanta.</p>
+<p>Gumawa at mag-edit ng lyrics, kumopya ng draft, at makinig sa sarili mong audio file.</p>
 
 <label for="song-title">Pamagat ng kanta</label>
 <input id="song-title" type="text"
@@ -61,6 +61,13 @@ placeholder="Halimbawa: Sa Huli, Ako ang Naiwan">
 <option>Rap</option>
 <option>Country</option>
 <option>Inspirational</option>
+</select>
+
+<label for="vocal-style">🎙️ Uri ng boses</label>
+<select id="vocal-style">
+<option value="male">Lalaking boses</option>
+<option value="female">Babaeng boses</option>
+<option value="duet" selected>Duet — lalaki at babae</option>
 </select>
 
 <label for="mood">💜 Damdamin</label>
@@ -99,7 +106,6 @@ placeholder="Halimbawa: tungkol sa taong iniwan pero patuloy na lumalaban sa buh
 <textarea id="lyrics" placeholder="Dito lalabas ang lyrics draft. Maaari mo ring ilagay ang sarili mong lyrics."></textarea>
 
 <button type="button" id="copy-lyrics" class="secondary">📋 Copy Lyrics</button>
-<button type="button" id="save-lyrics">💾 Download Lyrics (.txt)</button>
 
 <label for="audio-file">🎧 Pumili ng audio o MP3 mula sa phone</label>
 <input id="audio-file" type="file" accept="audio/*,.mp3">
@@ -113,7 +119,7 @@ style="display:none;width:100%;margin-top:14px"></audio>
 Handa na. Gumawa ng lyrics draft o ilagay ang sarili mong lyrics.
 </p>
 
-<small>Ang lyrics generator na ito ay gumagamit ng mga lokal na template. Hindi pa ito konektado sa totoong AI lyrics API. Ang pag-download ng audio ay para sa audio file na ikaw mismo ang pumili.</small>
+<small>Ang lyrics generator ay gumagamit ng lokal na templates at hindi pa konektado sa totoong AI lyrics API. Ang pagpili ng boses ay setting lamang at hindi pa lumilikha ng singing vocals. Ang audio player at download ay para sa audio file na ikaw mismo ang pumili.</small>
 </section>
 
 <section class="card">
@@ -257,6 +263,13 @@ function makeLyrics() {
   const language = $('language').value;
   const length = $('length').value;
   const idea = $('custom-idea').value.trim();
+  const vocalStyle = $('vocal-style').value;
+
+  const vocalNames = {
+    male: 'Lalaking boses',
+    female: 'Babaeng boses',
+    duet: 'Duet — lalaki at babae'
+  };
 
   const choices = templates[mood] || templates.Malungkot;
   const verse = choices[draftNumber % choices.length];
@@ -277,6 +290,7 @@ function makeLyrics() {
 
   let result = title + '\n';
   result += 'Genre: ' + genre + ' | Mood: ' + mood + '\n';
+  result += 'Napiling boses: ' + vocalNames[vocalStyle] + '\n';
   if (idea) result += 'Paksa: ' + idea + '\n';
   result += '\n[Verse 1]\n' + verseOne;
   result += '\n\n[Chorus]\n' + chorus;
@@ -299,7 +313,7 @@ function makeLyrics() {
 
   lyricsBox.value = result;
   musicStatus.textContent =
-    'Nagawa ang lyrics draft. Maaari mo itong i-edit. Hindi pa ito galing sa AI API.';
+    'Nagawa ang lyrics draft. Maaari mo itong i-edit. Hindi pa ito galing sa AI API, at ang napiling boses ay hindi pa aktuwal na singing voice.';
 }
 
 $('create-lyrics').addEventListener('click', makeLyrics);
@@ -320,35 +334,6 @@ $('copy-lyrics').addEventListener('click', async () => {
     musicStatus.textContent =
       'Nakapili ang lyrics. Pindutin nang matagal ang text at piliin ang Copy.';
   }
-});
-
-$('save-lyrics').addEventListener('click', () => {
-  const title = songTitle.value.trim() || 'Aking Kanta';
-  const lyrics = lyricsBox.value.trim();
-
-  if (!lyrics) {
-    musicStatus.textContent = 'Ilagay o gumawa muna ng lyrics.';
-    return;
-  }
-
-  const safeTitle = title.replace(/[\\/:*?"<>|]/g, '_');
-  const blob = new Blob(['\uFEFF' + title + '\n\n' + lyrics], {
-    type: 'text/plain;charset=utf-8'
-  });
-
-  const url = URL.createObjectURL(blob);
-  const link = document.createElement('a');
-  link.href = url;
-  link.download = safeTitle + '.txt';
-  document.body.appendChild(link);
-  link.click();
-  link.remove();
-
-  musicStatus.textContent =
-    'Sinubukang i-download ang ' + safeTitle +
-    '.txt. Tingnan ang Downloads sa phone mo.';
-
-  setTimeout(() => URL.revokeObjectURL(url), 60000);
 });
 
 audioFile.addEventListener('change', () => {
